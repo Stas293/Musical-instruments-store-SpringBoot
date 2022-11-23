@@ -8,7 +8,6 @@ import com.db.store.model.Error;
 
 @ControllerAdvice
 public class HandlerController {
-
     @ExceptionHandler(StatusNotFoundException.class)
     protected ResponseEntity<Error> handleStatusNotFoundException(StatusNotFoundException e) {
         Error error = Error.builder()

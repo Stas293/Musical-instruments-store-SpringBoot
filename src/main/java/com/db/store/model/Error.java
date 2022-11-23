@@ -5,31 +5,12 @@ public class Error {
     String message;
 
     public static ErrorBuilder builder() {
-        return new ErrorBuilder();
+        return new ErrorBuilderImpl();
     }
 
-    public static class ErrorBuilder {
-        private String code;
-        private String message;
-
-        public ErrorBuilder code(String code) {
-            this.code = code;
-            return this;
-        }
-
-        public ErrorBuilder message(String message) {
-            this.message = message;
-            return this;
-        }
-
-        public Error build() {
-            return new Error(this);
-        }
-    }
-
-    private Error(ErrorBuilder builder) {
-        this.code = builder.code;
-        this.message = builder.message;
+    Error(String code, String message) {
+        this.code = code;
+        this.message = message;
     }
 
     public String getCode() {

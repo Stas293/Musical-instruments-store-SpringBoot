@@ -34,28 +34,16 @@ public class StatusController {
 
     @GetMapping("/status/{id}")
     public ResponseEntity<Optional<Status>> getStatus(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok().body(statusService.getStatusById(id));
-        } catch (StatusNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().body(statusService.getStatusById(id));
     }
 
     @PutMapping("/status/{id}")
     public ResponseEntity<Status> updateStatus(@PathVariable Long id, @Valid @RequestBody Status status) {
-        try {
-            return ResponseEntity.ok().body(statusService.updateStatusById(id, status));
-        } catch (StatusNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().body(statusService.updateStatusById(id, status));
     }
 
     @DeleteMapping("/status/{id}")
     public ResponseEntity<Status> deleteStatus(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok().body(statusService.deleteStatusById(id));
-        } catch (StatusNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.ok().body(statusService.deleteStatusById(id));
     }
 }
