@@ -1,13 +1,15 @@
 package com.db.store.dto;
 
-public class JwtRequestDto {
+import java.io.Serializable;
+
+public class JwtRequestDTO implements Serializable {
     private String login;
     private String password;
 
-    public JwtRequestDto() {
+    public JwtRequestDTO() {
     }
 
-    public JwtRequestDto(String login, String password) {
+    public JwtRequestDTO(String login, String password) {
         this.login = login;
         this.password = password;
     }
@@ -30,7 +32,7 @@ public class JwtRequestDto {
 
     @Override
     public String toString() {
-        return "JwtRequestDto{" +
+        return "JwtRequestDTO{" +
                 "login='" + login + '\'' +
                 ", password='" + password + '\'' +
                 '}';
@@ -39,7 +41,7 @@ public class JwtRequestDto {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof JwtRequestDto that)) return false;
+        if (!(o instanceof JwtRequestDTO that)) return false;
 
         if (!login.equals(that.login)) return false;
         return password.equals(that.password);

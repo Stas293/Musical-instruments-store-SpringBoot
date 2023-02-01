@@ -13,4 +13,11 @@ public class StatusNotFoundException extends RuntimeException {
     public StatusNotFoundException(Throwable cause) {
         super(cause);
     }
+
+    @Override
+    public String toString() {
+        return "StatusNotFoundException{" +
+                "message='" + super.getMessage() + '\'' +
+                '}';
+    }
 }

@@ -1,14 +1,14 @@
-package com.db.store.model;
+package com.db.store.model.error;
 
 public class Error {
     String code;
     String message;
 
     public static ErrorBuilder builder() {
-        return new ErrorBuilderImpl();
+        return new ErrorBuilder();
     }
 
-    Error(String code, String message) {
+    public Error(String  code, String message) {
         this.code = code;
         this.message = message;
     }

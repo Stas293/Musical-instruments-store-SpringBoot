@@ -1,49 +1,79 @@
 package com.db.store.controller;
 
-import com.db.store.exceptions.StatusNotFoundException;
+import com.db.store.dto.StatusDTO;
 import com.db.store.model.Status;
 import com.db.store.service.StatusService;
+import com.db.store.utils.ObjectMapper;
+import com.db.store.validation.StatusValidator;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @Controller
+@RequestMapping("/admin/status")
 public class StatusController {
-
     private final StatusService statusService;
+    private final StatusValidator statusValidator;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    public StatusController(StatusService statusService) {
+    public StatusController(StatusService statusService,
+                            StatusValidator statusValidator,
+                            ObjectMapper objectMapper) {
         this.statusService = statusService;
+        this.statusValidator = statusValidator;
+        this.objectMapper = objectMapper;
     }
 
-    @GetMapping("/status")
-    public ResponseEntity<List<Status>> getStatuses() {
-        return ResponseEntity.ok().body(statusService.getStatuses());
+    @GetMapping()
+    public ResponseEntity<List<StatusDTO>> getStatuses() {
+        List<StatusDTO> statusDTOS = objectMapper.mapList(statusService.getStatuses(), StatusDTO.class);
+        return ResponseEntity.ok().body(statusDTOS);
     }
 
-    @PostMapping("/status")
-    public ResponseEntity<Status> createStatus(@Valid @RequestBody Status status) {
-        return ResponseEntity.ok().body(statusService.saveStatus(status));
+    @PostMapping()
+    public ResponseEntity<StatusDTO> createStatus(@RequestBody @Valid StatusDTO statusDTO,
+                                               BindingResult bindingResult) throws MethodArgumentNotValidException {
+        Status status = objectMapper.map(statusDTO, Status.class);
+        statusValidator.validate(status, bindingResult);
+        if (bindingResult.hasErrors()) {
+            throw new MethodArgumentNotValidException(
+                    new MethodParameter(this.getClass().getDeclaredMethods()[0], 0),
+                    bindingResult
+            );
+        }
+        return ResponseEntity.ok(
+                objectMapper.map(
+                        statusService.saveStatus(status), StatusDTO.class));
     }
 
-    @GetMapping("/status/{id}")
-    public ResponseEntity<Optional<Status>> getStatus(@PathVariable Long id) {
-        return ResponseEntity.ok().body(statusService.getStatusById(id));
+    @GetMapping("/{id}")
+    public ResponseEntity<StatusDTO> getStatus(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                objectMapper.map(
+                        statusService.getStatusById(id), StatusDTO.class));
     }
 
-    @PutMapping("/status/{id}")
-    public ResponseEntity<Status> updateStatus(@PathVariable Long id, @Valid @RequestBody Status status) {
-        return ResponseEntity.ok().body(statusService.updateStatusById(id, status));
+    @PutMapping("/{id}")
+    public ResponseEntity<StatusDTO> updateStatus(@PathVariable Long id,
+                                               @Valid @RequestBody StatusDTO statusDTO) {
+        Status status = objectMapper.map(statusDTO, Status.class);
+        return ResponseEntity.ok(
+                objectMapper.map(
+                        statusService.updateStatusById(id, status), StatusDTO.class));
     }
 
-    @DeleteMapping("/status/{id}")
-    public ResponseEntity<Status> deleteStatus(@PathVariable Long id) {
-        return ResponseEntity.ok().body(statusService.deleteStatusById(id));
+    @DeleteMapping("/{id}")
+    public ResponseEntity<StatusDTO> deleteStatus(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                objectMapper.map(
+                        statusService.deleteStatusById(id), StatusDTO.class));
     }
 }

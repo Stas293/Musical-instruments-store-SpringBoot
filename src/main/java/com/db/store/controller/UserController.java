@@ -1,43 +1,121 @@
 package com.db.store.controller;
 
-import com.db.store.dto.JwtRequestDto;
-import com.db.store.dto.JwtResponseDto;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.db.store.dto.*;
+import com.db.store.model.Role;
+import com.db.store.model.User;
+import com.db.store.security.jwt.JWTUtils;
+import com.db.store.service.UserService;
+import com.db.store.utils.ObjectMapper;
+import com.db.store.validation.UserValidator;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 
 @Controller
 public class UserController {
+    private final JWTUtils jwtUtils;
+    private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
+    private final ObjectMapper objectMapper;
+    private final UserService userService;
+    private final UserValidator userValidation;
 
-    @PostMapping("/login")
-    public ResponseEntity<JwtResponseDto> login(@RequestBody JwtRequestDto jwtRequestDto) {
-        return ResponseEntity.ok(JwtResponseDto.builder().token(getJWTToken(jwtRequestDto)).build());
+
+    @Autowired
+    public UserController(JWTUtils jwtUtils,
+                          AuthenticationManager authenticationManager,
+                          UserDetailsService userDetailsService,
+                          ObjectMapper objectMapper,
+                          UserService userService,
+                          UserValidator userValidation) {
+        this.jwtUtils = jwtUtils;
+        this.authenticationManager = authenticationManager;
+        this.userDetailsService = userDetailsService;
+        this.objectMapper = objectMapper;
+        this.userService = userService;
+        this.userValidation = userValidation;
     }
 
-    private String getJWTToken(JwtRequestDto jwtRequestDto) {
-        String secretKey = "jwtSecretKey";
-        List<GrantedAuthority> grantedAuthorities = AuthorityUtils
-                .commaSeparatedStringToAuthorityList("ROLE_USER");
+    @PostMapping("/login")
+    public ResponseEntity<JwtResponseDTO> login(@RequestBody JwtRequestDTO jwtRequestDto) {
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                jwtRequestDto.getLogin(), jwtRequestDto.getPassword());
+        authenticationManager.authenticate(authenticationToken);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(jwtRequestDto.getLogin());
+        String jwt = jwtUtils.generateToken(
+                jwtRequestDto.getLogin(),
+                userDetails.getAuthorities());
+        return ResponseEntity.ok(new JwtResponseDTO(jwt));
+    }
 
-        String token = Jwts.builder()
-                .setId("myJWT")
-                .setSubject(jwtRequestDto.getLogin())
-                .claim("authorities",
-                        grantedAuthorities.stream()
-                                .map(GrantedAuthority::getAuthority)
-                                .toList())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 600000))
-                .signWith(SignatureAlgorithm.RS512,
-                        secretKey.getBytes()).compact();
-        return "Bearer " + token;
+    @PostMapping("/register")
+    public ResponseEntity<UserDTO> register(@Valid @RequestBody RegistrationDTO registrationDTO,
+                                            BindingResult errors) throws MethodArgumentNotValidException {
+        User user = objectMapper.map(registrationDTO, User.class);
+        userValidation.validate(user, errors);
+        if (errors.hasErrors()) {
+            throw new MethodArgumentNotValidException(
+                    new MethodParameter(this.getClass().getDeclaredMethods()[0], 0),
+                    errors);
+        }
+        User registeredUser = userService.register(user);
+        return ResponseEntity.ok(objectMapper.map(registeredUser, UserDTO.class));
+    }
+
+    @PatchMapping("/admin/user/disable/{id}")
+    public ResponseEntity<UserDTO> disableUser(@PathVariable Long id) {
+        User user = userService.disableUser(id);
+        return ResponseEntity.ok(objectMapper.map(user, UserDTO.class));
+    }
+
+    @PatchMapping("/admin/user/enable/{id}")
+    public ResponseEntity<UserDTO> enableUser(@PathVariable Long id) {
+        User user = userService.enableUser(id);
+        return ResponseEntity.ok(objectMapper.map(user, UserDTO.class));
+    }
+
+    @PatchMapping("/admin/user/{id}/update")
+    public ResponseEntity<UserDTO> updateUserRoles(@PathVariable Long id,
+                                                   @RequestBody @Valid List<RoleDTO> roles) {
+        List<Role> roleList = objectMapper.mapList(roles, Role.class);
+        User user = userService.updateUserRoles(id, roleList);
+        return ResponseEntity.ok(objectMapper.map(user, UserDTO.class));
+    }
+
+    @PutMapping("/personal/{id}/update")
+    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id,
+                                              @RequestBody @Valid RegistrationDTO updatedUserData) {
+        User user = objectMapper.map(updatedUserData, User.class);
+        User updatedUser = userService.updateUserById(id, user);
+        return ResponseEntity.ok(objectMapper.map(updatedUser, UserDTO.class));
+    }
+
+    @GetMapping("/admin/users")
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(objectMapper.mapList(users, UserDTO.class));
+    }
+
+    @GetMapping("/admin/user/{id}")
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
+        User user = userService.getUserById(id);
+        return ResponseEntity.ok(objectMapper.map(user, UserDTO.class));
+    }
+
+    @DeleteMapping("/admin/user/{id}")
+    public ResponseEntity<UserDTO> deleteUser(@PathVariable Long id) {
+        User user = userService.deleteUser(id);
+        return ResponseEntity.ok(objectMapper.map(user, UserDTO.class));
     }
 }

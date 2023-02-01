@@ -1,8 +1,12 @@
 package com.db.store.model;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "status")
@@ -12,17 +16,35 @@ public class Status {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+    @NotBlank(message = "validation.text.error.required.field")
+    @Pattern(regexp = "^[A-Z_]+$", message = "validation.text.error.code.pattern")
+    @Size(max = 255, min = 3, message = "validation.text.error.code.size")
     @Column(name = "code", unique = true)
     private String code;
 
-    @NotNull
+    @NotBlank(message = "validation.text.error.required.field")
+    @Pattern(regexp = "^[a-zA-Z0-9 ]+$", message = "validation.text.error.name.pattern")
+    @Size(max = 255, min = 3, message = "validation.text.error.name.size")
     @Column(name = "name", unique = true)
     private String name;
 
-    @NotNull
+    @NotNull(message = "validation.text.error.required.field")
     @Column(name = "closed")
     private Boolean closed;
+
+    @ManyToMany
+    @JoinTable(name = "next_status",
+            joinColumns = @JoinColumn(name = "status_id"),
+            inverseJoinColumns = @JoinColumn(name = "next_status_id"))
+    private Set<Status> nextStatuses = new LinkedHashSet<>();
+
+    public Set<Status> getNextStatuses() {
+        return nextStatuses;
+    }
+
+    public void setNextStatuses(Set<Status> nextStatuses) {
+        this.nextStatuses = nextStatuses;
+    }
 
     public Status() {
     }

@@ -1,19 +1,25 @@
 package com.db.store.dto;
 
-public class JwtResponseDto {
-    private final String token;
+import java.io.Serializable;
 
-    public static JwtResponseDtoBuilder builder() {
-        return new JwtResponseDtoBuilderImpl();
+public class JwtResponseDTO implements Serializable {
+    private String token;
+
+    public JwtResponseDTO(String token) {
+        this.token = token;
     }
 
-    JwtResponseDto(String token) {
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
         this.token = token;
     }
 
     @Override
     public String toString() {
-        return "JwtResponseDto{" +
+        return "JwtResponseDTO{" +
                 "token='" + token + '\'' +
                 '}';
     }
@@ -21,7 +27,7 @@ public class JwtResponseDto {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof JwtResponseDto that)) return false;
+        if (!(o instanceof JwtResponseDTO that)) return false;
 
         return token.equals(that.token);
     }
