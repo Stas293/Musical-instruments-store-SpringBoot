@@ -5,7 +5,8 @@ public enum UserConstants {
     USER_NOT_FOUND("user.not.found"),
     LOGIN_ALREADY_EXISTS("login.already.exists"),
     EMAIL_ALREADY_EXISTS("email.already.exists"),
-    PHONE_ALREADY_EXISTS("phone.already.exists"), USER_HAS_ORDERS("user.has.orders");
+    PHONE_ALREADY_EXISTS("phone.already.exists"),
+    USER_HAS_ORDERS("user.has.orders");
 
     private final String message;
 

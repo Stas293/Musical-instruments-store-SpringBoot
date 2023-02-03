@@ -1,0 +1,26 @@
+version: "4.16.2"
+services:
+  mysqldb:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    networks:
+      - springmysql-net
+    env_file:
+      - .env
+
+  server:
+    build: .
+    restart: always
+    image: backend
+    ports:
+      - "8080:8080"
+    networks:
+      - springmysql-net
+    depends_on:
+      - mysqldb
+    env_file:
+      - .env
+
+networks:
+  springmysql-net:

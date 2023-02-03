@@ -21,6 +21,8 @@ You can use postman to test the API.
 12. You can add roles after you have registered a user with your MySQL command line
 13. Enjoy!
 
+You can also use the docker-compose file to run the project.
+
 ## How to contribute
 
 1. Fork the project
