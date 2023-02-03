@@ -3,20 +3,23 @@
 This is a simple musical instruments store made with Springboot as a backend. It uses a MySQL database to store the data. 
 Authentication is done with JWT. Communication with id done via JSON requests. Its main purpose is to be used with microservices.
 
+You can use postman to test the API.
+
 ## How to run
 
-1. Install MySQL
-2. Run the script `script.sql` on MySQL
-3. Run the Springboot project
-
-## How to use
-
-1. Register as user to be inserted in the database
-2. Add roles to your user
-3. Login to get a JWT
-4. Use the JWT to make requests to the API
-5. Use the API to manipulate the data, users, instruments, etc.
-6. Enjoy!
+1. Clone the project
+2. Pull the MySQL image `docker pull mysql:latest`
+3. Create network `docker network create musical-instruments-network`
+4. Run MySQL container `docker run --name mysql-store --network musical-instruments-network -e MYSQL_ROOT_PASSWORD=***** -e MYSQL_DATABASE=Musical_instruments_store -e MYSQL_USER=***** -e MYSQL_PASSWORD=***** -d mysql:latest`
+5. Build the project `mvn clean install`
+6. Build the docker image `docker build -t spring-musical-store .`
+7. Run the docker image `docker run --network musical-instruments-network --name musical-store -p 8080:8080 -d spring-musical-store
+8. You can access the MySQL database with your command line `docker exec -it *NETWORK ID* bash`
+9. Then you can access the database with `mysql -u*user* -p*password*`
+10. You can access the API with `http://localhost:8080`
+11. You can add roles to in the database with `INSERT INTO `Musical_instruments_store`.`role`(`code`, `name`) VALUES ("ROLE_USER", "user");` and so on
+12. You can add roles after you have registered a user with your MySQL command line
+13. Enjoy!
 
 ## How to contribute
 
