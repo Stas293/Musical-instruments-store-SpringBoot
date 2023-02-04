@@ -102,8 +102,9 @@ public class UserController {
     }
 
     @GetMapping("/admin/users")
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
+    public ResponseEntity<List<UserDTO>> getAllUsers(@RequestParam(required = false, defaultValue = "0") int page,
+                                                     @RequestParam(required = false, defaultValue = "5") int size) {
+        List<User> users = userService.getAllUsers(page, size).getContent();
         return ResponseEntity.ok(objectMapper.mapList(users, UserDTO.class));
     }
 

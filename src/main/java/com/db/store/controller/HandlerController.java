@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.List;
 import java.util.Objects;
@@ -128,5 +129,15 @@ public class HandlerController {
                 .toList();
 
         return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(value = NoHandlerFoundException.class)
+    public ResponseEntity<Error> exception(WebRequest request) {
+        Error error = Error.builder()
+                .code(HttpStatus.NOT_FOUND.name())
+                .message(
+                        messageSource.getMessage("error.not.found", null, request.getLocale()))
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 }

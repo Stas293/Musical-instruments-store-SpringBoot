@@ -33,10 +33,11 @@ public class OrderController {
     }
 
     @GetMapping("/user/orders")
-    public ResponseEntity<List<OrderDTO>> getOrdersForLoggedUser() {
+    public ResponseEntity<List<OrderDTO>> getOrdersForLoggedUser(@RequestParam(required = false, defaultValue = "0") int page,
+                                                                 @RequestParam(required = false, defaultValue = "5") int size) {
         return ResponseEntity.ok(
                 objectMapper.mapList(
-                        orderService.getAllOrdersForLoggedUser(), OrderDTO.class));
+                        orderService.getAllOrdersForLoggedUser(page, size).getContent(), OrderDTO.class));
     }
 
     @GetMapping("/user/orders/{id}")
@@ -47,10 +48,11 @@ public class OrderController {
     }
 
     @GetMapping("/seller/orders")
-    public ResponseEntity<List<OrderDTO>> getOrders() {
+    public ResponseEntity<List<OrderDTO>> getOrders(@RequestParam(required = false, defaultValue = "0") int page,
+                                                    @RequestParam(required = false, defaultValue = "5") int size) {
         return ResponseEntity.ok(
                 objectMapper.mapList(
-                        orderService.getAllOrders(), OrderDTO.class));
+                        orderService.getAllOrders(page, size).getContent(), OrderDTO.class));
     }
 
     @PatchMapping("/seller/orders/{id}")

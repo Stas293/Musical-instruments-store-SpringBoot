@@ -10,6 +10,8 @@ import com.db.store.repository.InstrumentRepository;
 import com.db.store.repository.StatusRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.FieldError;
 
@@ -28,10 +30,6 @@ public class InstrumentService {
                              StatusRepository statusRepository) {
         this.instrumentRepository = instrumentRepository;
         this.statusRepository = statusRepository;
-    }
-
-    public List<Instrument> getAll() {
-        return instrumentRepository.findAll();
     }
 
     public Instrument getById(Long id) {
@@ -114,5 +112,9 @@ public class InstrumentService {
         } else {
             throw new InstrumentNotFoundException(InstrumentConstants.INSTRUMENT_NOT_FOUND.getMessage());
         }
+    }
+
+    public Page<Instrument> getPage(int page, int size) {
+        return instrumentRepository.findAll(PageRequest.of(page, size));
     }
 }

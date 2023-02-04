@@ -11,12 +11,13 @@ import com.db.store.exceptions.UserNotFoundException;
 import com.db.store.model.*;
 import com.db.store.repository.*;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -70,10 +71,10 @@ public class OrderService {
         return order;
     }
 
-    public List<Order> getAllOrdersForLoggedUser() {
+    public Page<Order> getAllOrdersForLoggedUser(int page, int size) {
         User user = userRepository.findByLogin(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UserNotFoundException(UserConstants.USER_NOT_FOUND.getMessage()));
-        return orderRepository.findByUser(user);
+        return orderRepository.findByUser(user, PageRequest.of(page, size));
     }
 
     public Order getOrderForUserById(Long id) {
@@ -83,8 +84,8 @@ public class OrderService {
                 .orElseThrow(() -> new OrderNotFoundException(OrderConstants.ORDER_NOT_FOUND.getMessage()));
     }
 
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+    public Page<Order> getAllOrders(int page, int size) {
+        return orderRepository.findAll(PageRequest.of(page, size));
     }
 
     @Transactional

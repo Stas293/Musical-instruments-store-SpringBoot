@@ -33,10 +33,11 @@ public class RoleController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<RoleDTO>> getRoles() {
+    public ResponseEntity<List<RoleDTO>> getRoles(@RequestParam(required = false, defaultValue = "0") int page,
+                                                  @RequestParam(required = false, defaultValue = "5") int size) {
         return ResponseEntity.ok().body(
                 objectMapper.mapList(
-                        roleService.getAllRoles(), RoleDTO.class));
+                        roleService.getAllRoles(page, size).getContent(), RoleDTO.class));
     }
 
     @GetMapping("/{id}")

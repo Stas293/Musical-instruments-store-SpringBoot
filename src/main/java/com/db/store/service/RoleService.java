@@ -6,6 +6,8 @@ import com.db.store.exceptions.RoleNotFoundException;
 import com.db.store.model.Role;
 import com.db.store.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.FieldError;
 
@@ -22,8 +24,8 @@ public class RoleService {
         this.roleRepository = roleRepository;
     }
 
-    public List<Role> getAllRoles() {
-        return roleRepository.findAll();
+    public Page<Role> getAllRoles(int page, int size) {
+        return roleRepository.findAll(PageRequest.of(page, size));
     }
 
     public Role getRole(Long id) {

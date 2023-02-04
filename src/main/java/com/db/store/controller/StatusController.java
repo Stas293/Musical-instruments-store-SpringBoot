@@ -33,8 +33,9 @@ public class StatusController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<StatusDTO>> getStatuses() {
-        List<StatusDTO> statusDTOS = objectMapper.mapList(statusService.getStatuses(), StatusDTO.class);
+    public ResponseEntity<List<StatusDTO>> getStatuses(@RequestParam(required = false, defaultValue = "0") int page,
+                                                       @RequestParam(required = false, defaultValue = "5") int size) {
+        List<StatusDTO> statusDTOS = objectMapper.mapList(statusService.getStatuses(page, size).getContent(), StatusDTO.class);
         return ResponseEntity.ok().body(statusDTOS);
     }
 

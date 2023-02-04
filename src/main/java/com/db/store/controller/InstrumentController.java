@@ -32,10 +32,11 @@ public class InstrumentController {
     }
 
     @GetMapping("/user/instruments")
-    public ResponseEntity<List<InstrumentDTO>> getInstruments() {
+    public ResponseEntity<List<InstrumentDTO>> getInstruments(@RequestParam(required = false, defaultValue = "0") int page,
+                                                              @RequestParam(required = false, defaultValue = "5") int size) {
         return ResponseEntity.ok(
                 objectMapper.mapList(
-                        instrumentService.getAll(), InstrumentDTO.class));
+                        instrumentService.getPage(page, size).getContent(), InstrumentDTO.class));
     }
 
     @GetMapping("/user/instruments/{id}")

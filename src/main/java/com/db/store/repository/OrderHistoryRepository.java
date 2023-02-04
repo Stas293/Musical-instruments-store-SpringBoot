@@ -2,14 +2,16 @@ package com.db.store.repository;
 
 import com.db.store.model.OrderHistory;
 import com.db.store.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OrderHistoryRepository extends JpaRepository<OrderHistory, Long> {
-    List<OrderHistory> findAllByUserAndId(User user, Long id);
+    Optional<OrderHistory> findByUserAndId(User user, Long id);
 
-    List<OrderHistory> findAllByUser(User user);
+    Page<OrderHistory> findAllByUser(User user, Pageable of);
 }

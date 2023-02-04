@@ -6,6 +6,8 @@ import com.db.store.exceptions.StatusNotFoundException;
 import com.db.store.model.Status;
 import com.db.store.repository.StatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.FieldError;
 
@@ -22,8 +24,8 @@ public class StatusService {
         this.statusRepository = statusRepository;
     }
 
-    public List<Status> getStatuses() {
-        return statusRepository.findAll();
+    public Page<Status> getStatuses(int page, int size) {
+        return statusRepository.findAll(PageRequest.of(page, size));
     }
 
     public Status saveStatus(Status status) {

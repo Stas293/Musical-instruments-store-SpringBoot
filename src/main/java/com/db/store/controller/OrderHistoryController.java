@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -22,24 +23,26 @@ public class OrderHistoryController {
     }
 
     @GetMapping("/user/order-history")
-    public ResponseEntity<List<OrderHistoryDTO>> getOrdersForLoggedUser() {
+    public ResponseEntity<List<OrderHistoryDTO>> getOrdersForLoggedUser(@RequestParam(required = false, defaultValue = "0") int page,
+                                                                        @RequestParam(required = false, defaultValue = "5") int size) {
         return ResponseEntity.ok(
                 objectMapper.mapList(
-                        orderHistoryService.getAllOrderHistoriesByUser(), OrderHistoryDTO.class));
+                        orderHistoryService.getAllOrderHistoriesByUser(page, size).getContent(), OrderHistoryDTO.class));
     }
 
     @GetMapping("/user/order-history/{id}")
     public ResponseEntity<OrderHistoryDTO> getOrderForUserById(@PathVariable Long id) {
         return ResponseEntity.ok(
                 objectMapper.map(
-                        orderHistoryService.getAllOrderHistoriesByIdForUser(id), OrderHistoryDTO.class));
+                        orderHistoryService.getOrderHistoryByIdForUser(id), OrderHistoryDTO.class));
     }
 
     @GetMapping("/seller/order-history")
-    public ResponseEntity<List<OrderHistoryDTO>> getOrders() {
+    public ResponseEntity<List<OrderHistoryDTO>> getOrderHistories(@RequestParam(required = false, defaultValue = "0") int page,
+                                                                   @RequestParam(required = false, defaultValue = "5") int size) {
         return ResponseEntity.ok(
                 objectMapper.mapList(
-                        orderHistoryService.getAllOrderHistories(), OrderHistoryDTO.class));
+                        orderHistoryService.getAllOrderHistories(page, size).getContent(), OrderHistoryDTO.class));
     }
 
     @GetMapping("/seller/order-history/{id}")
