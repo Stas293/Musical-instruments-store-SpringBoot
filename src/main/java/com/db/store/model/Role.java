@@ -22,7 +22,7 @@ public class Role implements GrantedAuthority {
 
     @Size(max = 255, min = 3, message = "validation.role.name.size")
     @NotBlank(message = "validation.text.error.required.field")
-    @Pattern(regexp = "^[A-Z][a-z]+$", message = "validation.role.name.pattern")
+    @Pattern(regexp = "^[A-Za-z ]+$", message = "validation.role.name.pattern")
     @Column(name = "name", nullable = false)
     private String name;
 

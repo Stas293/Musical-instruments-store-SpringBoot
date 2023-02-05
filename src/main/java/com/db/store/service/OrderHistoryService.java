@@ -29,8 +29,8 @@ public class OrderHistoryService {
     }
 
     public OrderHistory getOrderHistoryByIdForUser(Long id) {
-        User user = userRepository.findById(id).orElseThrow(
-                () -> new UserNotFoundException(UserConstants.USER_NOT_FOUND.getMessage()));
+        User user = userRepository.findByLogin(SecurityContextHolder.getContext().getAuthentication().getName())
+                .orElseThrow(() -> new UserNotFoundException(UserConstants.USER_NOT_FOUND.getMessage()));
         return orderHistoryRepository.findByUserAndId(user, id).orElseThrow(
                 () -> new UserNotFoundException(UserConstants.USER_NOT_FOUND.getMessage()));
     }

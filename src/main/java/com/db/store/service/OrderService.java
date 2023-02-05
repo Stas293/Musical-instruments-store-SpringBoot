@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -47,6 +48,23 @@ public class OrderService {
     @Transactional
     public Order create(Order order) {
         order.setDateCreated(LocalDateTime.now());
+        Set<InstrumentOrder> instrumentOrders = setOrderFields(order);
+        order = orderRepository.save(order);
+        Order finalOrder = order;
+        setInstrumentOrders(instrumentOrders, finalOrder);
+        instrumentOrderRepository.saveAll(instrumentOrders);
+        return order;
+    }
+
+    private static void setInstrumentOrders(Set<InstrumentOrder> instrumentOrders, Order finalOrder) {
+        instrumentOrders.forEach(instrumentOrder -> instrumentOrder.setOrder(finalOrder));
+        instrumentOrders.forEach(instrumentOrder -> instrumentOrder.setId(
+                new InstrumentOrderId(
+                        instrumentOrder.getInstrument().getId(),
+                        instrumentOrder.getOrder().getId())));
+    }
+
+    private Set<InstrumentOrder> setOrderFields(Order order) {
         order.setUser(userRepository.findByLogin(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UserNotFoundException(UserConstants.USER_NOT_FOUND.getMessage())));
         order.setStatus(statusRepository.findByCode(StatusConstants.ORDER_PROCESSING.getMessage())
@@ -60,15 +78,7 @@ public class OrderService {
                 })
                 .collect(Collectors.toSet());
         order.setInstrumentOrders(instrumentOrders);
-        order = orderRepository.save(order);
-        Order finalOrder = order;
-        instrumentOrders.forEach(instrumentOrder -> instrumentOrder.setOrder(finalOrder));
-        instrumentOrders.forEach(instrumentOrder -> instrumentOrder.setId(
-                new InstrumentOrderId(
-                        instrumentOrder.getInstrument().getId(),
-                        instrumentOrder.getOrder().getId())));
-        instrumentOrderRepository.saveAll(instrumentOrders);
-        return order;
+        return instrumentOrders;
     }
 
     public Page<Order> getAllOrdersForLoggedUser(int page, int size) {
@@ -131,11 +141,31 @@ public class OrderService {
 
     @Transactional
     public Order updateOrder(Long id, Order order) {
+        Order orderFromDB = getOrderFromDBAndCheckUser(id);
+        instrumentOrderRepository.deleteAllByOrderId(orderFromDB.getId());
+        Set<InstrumentOrder> instrumentOrders = updateOrderFields(order, orderFromDB);
+        orderFromDB = orderRepository.save(orderFromDB);
+        orderFromDB.setInstrumentOrders(instrumentOrders);
+        Order finalOrderFromDB = orderFromDB;
+        setInstrumentOrders(instrumentOrders, finalOrderFromDB);
+        instrumentOrderRepository.saveAll(instrumentOrders);
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new OrderNotFoundException(OrderConstants.ORDER_NOT_FOUND.getMessage()));
+    }
+
+    private Order getOrderFromDBAndCheckUser(Long id) {
         Order orderFromDB = orderRepository.findById(id)
                 .orElseThrow(() -> new OrderNotFoundException(OrderConstants.ORDER_NOT_FOUND.getMessage()));
+        if (!orderFromDB.getUser().getLogin().equals(SecurityContextHolder.getContext().getAuthentication().getName())) {
+            throw new UserNotFoundException(UserConstants.USER_NOT_FOUND.getMessage());
+        }
+        return orderFromDB;
+    }
+
+    private Set<InstrumentOrder> updateOrderFields(Order order, Order orderFromDB) {
         orderFromDB.setTitle(order.getTitle());
-        instrumentOrderRepository.deleteAllByOrderId(orderFromDB.getId());
-        Set<InstrumentOrder> instrumentOrders = orderFromDB.getInstrumentOrders()
+        orderFromDB.setInstrumentOrders(new HashSet<>());
+        return order.getInstrumentOrders()
                 .stream().peek(instrumentOrder -> {
                     instrumentOrder.setInstrument(
                             instrumentRepository.findByTitle(instrumentOrder.getInstrument().getTitle())
@@ -143,13 +173,5 @@ public class OrderService {
                     instrumentOrder.setPrice(instrumentOrder.getInstrument().getPrice());
                 })
                 .collect(Collectors.toSet());
-        orderFromDB.setInstrumentOrders(instrumentOrders);
-        instrumentOrders.forEach(instrumentOrder -> instrumentOrder.setOrder(orderFromDB));
-        instrumentOrders.forEach(instrumentOrder -> instrumentOrder.setId(
-                new InstrumentOrderId(
-                        instrumentOrder.getInstrument().getId(),
-                        instrumentOrder.getOrder().getId())));
-        instrumentOrderRepository.saveAll(instrumentOrders);
-        return orderRepository.save(orderFromDB);
     }
 }

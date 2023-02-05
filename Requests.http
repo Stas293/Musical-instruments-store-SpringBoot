@@ -1,0 +1,259 @@
+###
+PATCH http://localhost:8080/admin/user/disable/{{id}}
+Authorization: Bearer {token}
+
+###
+PATCH http://localhost:8080/admin/user/enable/{{id}}
+Authorization: Bearer {token}
+
+###
+GET http://localhost:8080/admin/user/{{id}}
+Authorization: Bearer {token}
+
+###
+DELETE http://localhost:8080/admin/user/{{id}}
+Authorization: Bearer {token}
+
+###
+PATCH http://localhost:8080/admin/user/{{id}}/update
+Authorization: Bearer {token}
+Content-Type: application/json
+
+[
+  {
+    "code": "ROLE_USER",
+    "name": "user"
+  },
+  {
+    "code": "ROLE_SELLER",
+    "name": "seller"
+  },
+  {
+    "code": "ROLE_ADMIN",
+    "name": "admin"
+  }
+]
+
+###
+GET http://localhost:8080/admin/users
+Authorization: Bearer {token}
+
+###
+POST http://localhost:8080/login
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+    "login":"",
+    "password":""
+}
+
+###
+PUT http://localhost:8080/personal/update
+Authorization: Bearer {token}
+Compliance: application/json
+
+{
+    "login":"",
+    "firstName":"",
+    "lastName":"",
+    "email":"",
+    "phone":"",
+    "password":""
+}
+
+###
+POST http://localhost:8080/register
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+    "login":"",
+    "firstName":"",
+    "lastName":"",
+    "email":"",
+    "phone":"",
+    "password":""
+}
+
+###
+GET http://localhost:8080/admin/status
+Authorization: Bearer {token}
+
+###
+POST http://localhost:8080/admin/status
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "New status",
+  "code": "NEW_STATUS",
+  "closed": "false"
+}
+
+###
+GET http://localhost:8080/admin/status/{{id}}
+Authorization: Bearer {token}
+
+###
+PUT http://localhost:8080/admin/status/{{id}}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "New status",
+  "code": "NEW_STATUS",
+  "closed": "true"
+}
+
+###
+DELETE http://localhost:8080/admin/status/{{id}}
+Authorization: Bearer {token}
+
+###
+GET http://localhost:8080/seller/order-history
+Authorization: Bearer {token}
+
+###
+GET http://localhost:8080/seller/order-history/{{id}}
+Authorization: Bearer {token}
+
+###
+GET http://localhost:8080/user/order-history
+Authorization: Bearer {token}
+
+###
+GET http://localhost:8080/user/order-history/{{id}}
+Authorization: Bearer {token}
+
+###
+GET http://localhost:8080/admin/role
+Authorization: Bearer {token}
+
+###
+POST http://localhost:8080/admin/role
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "New",
+  "code": "ROLE_NEW"
+}
+
+###
+GET http://localhost:8080/admin/role/{{id}}
+Authorization: Bearer {token}
+
+###
+PUT http://localhost:8080/admin/role/{{id}}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "name": "New",
+  "code": "ROLE_NEW"
+}
+
+###
+DELETE http://localhost:8080/admin/role/{{id}}
+Authorization: Bearer {token}
+
+###
+POST http://localhost:8080/seller/instruments
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "description": "Test",
+  "title": "Test",
+  "status": {
+    "code": "ORDER_PROCESSING"
+  },
+  "price": 90.00
+}
+
+###
+PUT http://localhost:8080/seller/instruments/{{id}}
+Authorization: Bearer {token}
+
+###
+DELETE http://localhost:8080/seller/instruments/{{id}}
+Authorization: Bearer {token}
+
+###
+GET http://localhost:8080/user/instruments
+Authorization: Bearer {token}
+
+###
+GET http://localhost:8080/user/instruments/{{id}}
+Authorization: Bearer {token}
+
+###
+GET http://localhost:8080/seller/orders
+Authorization: Bearer {token}
+
+###
+PATCH http://localhost:8080/seller/orders/{{id}}
+Authorization: Bearer {token}
+
+###
+PATCH http://localhost:8080/seller/orders/{{id}}/cancel
+Authorization: Bearer {token}
+
+###
+GET http://localhost:8080/user/orders
+Authorization: Bearer {token}
+
+###
+POST http://localhost:8080/user/orders
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "title": "Test",
+  "instrumentOrders": [
+    {
+      "quantity": 1,
+      "instrument": {
+        "description": "Insanely good piano",
+        "title": "Piano"
+      }
+    },
+    {
+      "quantity": 3,
+      "instrument": {
+        "description": "Very good guitar",
+        "title": "Guitar"
+      }
+    }
+  ]
+}
+
+###
+GET http://localhost:8080/user/orders/{{id}}
+Authorization: Bearer {token}
+
+###
+PUT http://localhost:8080/user/orders/{{id}}
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "title": "Test",
+  "instrumentOrders": [
+    {
+      "quantity": 5,
+      "instrument": {
+        "description": "Insanely good piano",
+        "title": "Piano"
+      }
+    },
+    {
+      "quantity": 3,
+      "instrument": {
+        "description": "Very good guitar",
+        "title": "Guitar"
+      }
+    }
+  ]
+}

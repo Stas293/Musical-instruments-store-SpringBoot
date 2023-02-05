@@ -21,7 +21,7 @@ public class User {
     @Size(max = 255, min = 4, message = "validation.text.error.login.size")
     @NotBlank(message = "validation.text.error.required.field")
     @Pattern(regexp = "^\\w+$", message = "validation.text.error.login.pattern")
-    @Column(name = "login", nullable = false)
+    @Column(name = "login", nullable = false, unique = true)
     private String login;
 
     @Size(max = 255, min = 4, message = "validation.text.error.first.name.size")
@@ -39,13 +39,13 @@ public class User {
     @Size(max = 255, min = 4, message = "validation.text.error.email.size")
     @NotBlank(message = "validation.text.error.required.field")
     @Pattern(regexp = "^[A-Za-z0-9+_.-]+@(.+)$", message = "validation.text.error.email.pattern")
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Size(max = 13, min = 13, message = "validation.text.error.phone.size")
     @NotBlank(message = "validation.text.error.required.field")
     @Pattern(regexp = "^\\+380[0-9]{9}$", message = "validation.text.error.phone.pattern")
-    @Column(name = "phone", nullable = false, length = 13)
+    @Column(name = "phone", nullable = false, length = 13, unique = true)
     private String phone;
 
     @Size(max = 255, min = 8, message = "validation.text.error.password.size")

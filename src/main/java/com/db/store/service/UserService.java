@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.FieldError;
@@ -87,8 +88,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User updateUserById(Long id, User user) {
-        Optional<User> repUser = userRepository.findById(id);
+    public User updateUserData(User user) {
+        Optional<User> repUser = userRepository.findByLogin(
+                SecurityContextHolder.getContext().getAuthentication().getName()
+        );
         if (repUser.isPresent()) {
             User oldUser = repUser.get();
             checkUser(user, oldUser);
@@ -148,6 +151,10 @@ public class UserService {
     public User deleteUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(
                 () -> new UserNotFoundException(UserConstants.USER_NOT_FOUND.getMessage()));
+        user.getOrders().forEach(order -> order.setUser(null));
+        user.setOrders(Collections.emptySet());
+        user.setRoles(Collections.emptySet());
+        userRepository.save(user);
         List<FieldError> errors = new ArrayList<>();
         if (!user.getOrders().isEmpty()) {
             errors.add(new FieldError(

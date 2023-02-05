@@ -15,14 +15,13 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 public class UserController {
     private final JWTUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
@@ -93,11 +92,10 @@ public class UserController {
         return ResponseEntity.ok(objectMapper.map(user, UserDTO.class));
     }
 
-    @PutMapping("/personal/{id}/update")
-    public ResponseEntity<UserDTO> updateUser(@PathVariable Long id,
-                                              @RequestBody @Valid RegistrationDTO updatedUserData) {
+    @PutMapping("/personal/update")
+    public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid RegistrationDTO updatedUserData) {
         User user = objectMapper.map(updatedUserData, User.class);
-        User updatedUser = userService.updateUserById(id, user);
+        User updatedUser = userService.updateUserData(user);
         return ResponseEntity.ok(objectMapper.map(updatedUser, UserDTO.class));
     }
 

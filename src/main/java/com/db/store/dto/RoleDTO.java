@@ -13,11 +13,11 @@ import java.util.Objects;
 public class RoleDTO implements Serializable {
     @Size(max = 255, min = 3, message = "validation.role.code.size")
     @NotBlank(message = "validation.role.code.required")
-    @Pattern(regexp = "^[A-Z]+$", message = "validation.role.code.pattern")
+    @Pattern(regexp = "^[A-Z_]+$", message = "validation.role.code.pattern")
     private String code;
     @Size(max = 255, min = 3, message = "validation.role.name.size")
     @NotBlank(message = "validation.role.name.required")
-    @Pattern(regexp = "^[A-Z][a-z]+$", message = "validation.role.name.pattern")
+    @Pattern(regexp = "^[A-Za-z ]+$", message = "validation.role.name.pattern")
     private String name;
 
     public RoleDTO() {
