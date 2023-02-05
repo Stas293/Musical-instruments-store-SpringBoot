@@ -1,7 +1,7 @@
 package com.db.store.validation;
 
+import com.db.store.service.interfaces.InstrumentServiceInterface;
 import com.db.store.model.Instrument;
-import com.db.store.service.InstrumentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -9,10 +9,10 @@ import org.springframework.validation.Validator;
 
 @Component
 public class InstrumentValidator implements Validator {
-    private final InstrumentService instrumentService;
+    private final InstrumentServiceInterface instrumentService;
 
     @Autowired
-    public InstrumentValidator(InstrumentService instrumentService) {
+    public InstrumentValidator(InstrumentServiceInterface instrumentService) {
         this.instrumentService = instrumentService;
     }
 

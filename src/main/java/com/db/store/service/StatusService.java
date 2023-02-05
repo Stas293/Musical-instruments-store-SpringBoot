@@ -5,6 +5,7 @@ import com.db.store.exceptions.StatusConflictException;
 import com.db.store.exceptions.StatusNotFoundException;
 import com.db.store.model.Status;
 import com.db.store.repository.StatusRepository;
+import com.db.store.service.interfaces.StatusServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class StatusService {
+public class StatusService implements StatusServiceInterface {
     private final StatusRepository statusRepository;
 
     @Autowired
@@ -24,20 +25,24 @@ public class StatusService {
         this.statusRepository = statusRepository;
     }
 
+    @Override
     public Page<Status> getStatuses(int page, int size) {
         return statusRepository.findAll(PageRequest.of(page, size));
     }
 
+    @Override
     public Status saveStatus(Status status) {
         return statusRepository.save(status);
     }
 
+    @Override
     public Status getStatusById(Long id) throws StatusNotFoundException {
         return statusRepository.findById(id)
                 .orElseThrow(
                         () -> new StatusNotFoundException(StatusConstants.STATUS_NOT_FOUND.getMessage()));
     }
 
+    @Override
     public Status updateStatusById(Long id, Status status) {
         Optional<Status> repStatus = statusRepository.findById(id);
         if (repStatus.isPresent()) {
@@ -78,6 +83,7 @@ public class StatusService {
         oldStatus.setClosed(status.isClosed());
     }
 
+    @Override
     public Status deleteStatusById(Long id) throws StatusNotFoundException {
         Optional<Status> repStatus = statusRepository.findById(id);
         if (repStatus.isPresent()) {
@@ -87,10 +93,12 @@ public class StatusService {
         throw new StatusNotFoundException(StatusConstants.STATUS_NOT_FOUND.getMessage());
     }
 
+    @Override
     public Status getStatusByName(String name) {
         return statusRepository.findByName(name).orElse(null);
     }
 
+    @Override
     public Status getStatusByCode(String code) {
         return statusRepository.findByCode(code).orElse(null);
     }

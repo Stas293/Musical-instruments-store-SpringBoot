@@ -2,7 +2,7 @@ package com.db.store.controller;
 
 import com.db.store.dto.StatusDTO;
 import com.db.store.model.Status;
-import com.db.store.service.StatusService;
+import com.db.store.service.interfaces.StatusServiceInterface;
 import com.db.store.utils.ObjectMapper;
 import com.db.store.validation.StatusValidator;
 import jakarta.validation.Valid;
@@ -18,12 +18,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin/status")
 public class StatusController {
-    private final StatusService statusService;
+    private final StatusServiceInterface statusService;
     private final StatusValidator statusValidator;
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public StatusController(StatusService statusService,
+    public StatusController(StatusServiceInterface statusService,
                             StatusValidator statusValidator,
                             ObjectMapper objectMapper) {
         this.statusService = statusService;

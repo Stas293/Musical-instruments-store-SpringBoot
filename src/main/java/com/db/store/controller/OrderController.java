@@ -2,7 +2,7 @@ package com.db.store.controller;
 
 import com.db.store.dto.OrderDTO;
 import com.db.store.model.Order;
-import com.db.store.service.OrderService;
+import com.db.store.service.interfaces.OrderServiceInterface;
 import com.db.store.utils.ObjectMapper;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +13,11 @@ import java.util.List;
 
 @RestController
 public class OrderController {
-    private final OrderService orderService;
+    private final OrderServiceInterface orderService;
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public OrderController(OrderService orderService,
+    public OrderController(OrderServiceInterface orderService,
                            ObjectMapper objectMapper) {
         this.orderService = orderService;
         this.objectMapper = objectMapper;
@@ -69,7 +69,8 @@ public class OrderController {
     }
 
     @PutMapping("/user/orders/{id}")
-    public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id, @RequestBody @Valid OrderDTO orderDTO) {
+    public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id,
+                                                @RequestBody @Valid OrderDTO orderDTO) {
         Order order = objectMapper.map(orderDTO, Order.class);
         return ResponseEntity.ok(
                 objectMapper.map(

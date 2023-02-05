@@ -1,8 +1,8 @@
 package com.db.store.controller;
 
+import com.db.store.service.interfaces.InstrumentServiceInterface;
 import com.db.store.dto.InstrumentDTO;
 import com.db.store.model.Instrument;
-import com.db.store.service.InstrumentService;
 import com.db.store.utils.ObjectMapper;
 import com.db.store.validation.InstrumentValidator;
 import jakarta.validation.Valid;
@@ -17,12 +17,12 @@ import java.util.List;
 
 @RestController
 public class InstrumentController {
-    private final InstrumentService instrumentService;
+    private final InstrumentServiceInterface instrumentService;
     private final ObjectMapper objectMapper;
     private final InstrumentValidator instrumentValidator;
 
     @Autowired
-    public InstrumentController(InstrumentService instrumentService,
+    public InstrumentController(InstrumentServiceInterface instrumentService,
                                 ObjectMapper objectMapper,
                                 InstrumentValidator instrumentValidator) {
         this.instrumentService = instrumentService;
@@ -63,7 +63,7 @@ public class InstrumentController {
 
     @PutMapping("/seller/instruments/{id}")
     public ResponseEntity<InstrumentDTO> updateInstrument(@PathVariable Long id,
-                                                         @RequestBody @Valid InstrumentDTO instrumentDTO) {
+                                                          @RequestBody @Valid InstrumentDTO instrumentDTO) {
         Instrument instrument = objectMapper.map(instrumentDTO, Instrument.class);
         return ResponseEntity.ok(
                 objectMapper.map(

@@ -4,7 +4,7 @@ import com.db.store.dto.*;
 import com.db.store.model.Role;
 import com.db.store.model.User;
 import com.db.store.security.jwt.JWTUtils;
-import com.db.store.service.UserService;
+import com.db.store.service.interfaces.UserServiceInterface;
 import com.db.store.utils.ObjectMapper;
 import com.db.store.validation.UserValidator;
 import jakarta.validation.Valid;
@@ -27,7 +27,7 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
     private final ObjectMapper objectMapper;
-    private final UserService userService;
+    private final UserServiceInterface userService;
     private final UserValidator userValidation;
 
 
@@ -36,7 +36,7 @@ public class UserController {
                           AuthenticationManager authenticationManager,
                           UserDetailsService userDetailsService,
                           ObjectMapper objectMapper,
-                          UserService userService,
+                          UserServiceInterface userService,
                           UserValidator userValidation) {
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;

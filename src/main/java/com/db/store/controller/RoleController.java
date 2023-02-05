@@ -2,7 +2,7 @@ package com.db.store.controller;
 
 import com.db.store.dto.RoleDTO;
 import com.db.store.model.Role;
-import com.db.store.service.RoleService;
+import com.db.store.service.interfaces.RoleServiceInterface;
 import com.db.store.utils.ObjectMapper;
 import com.db.store.validation.RoleValidator;
 import jakarta.validation.Valid;
@@ -18,12 +18,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/admin/role")
 public class RoleController {
-    private final RoleService roleService;
+    private final RoleServiceInterface roleService;
     private final ObjectMapper objectMapper;
     private final RoleValidator roleValidator;
 
     @Autowired
-    public RoleController(RoleService roleService,
+    public RoleController(RoleServiceInterface roleService,
                           ObjectMapper objectMapper,
                           RoleValidator roleValidator) {
         this.roleService = roleService;

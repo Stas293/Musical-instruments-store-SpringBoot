@@ -2,6 +2,7 @@ package com.db.store.service;
 
 import com.db.store.constants.InstrumentConstants;
 import com.db.store.constants.StatusConstants;
+import com.db.store.service.interfaces.InstrumentServiceInterface;
 import com.db.store.exceptions.InstrumentConflictException;
 import com.db.store.exceptions.InstrumentNotFoundException;
 import com.db.store.exceptions.InstrumentReferenceException;
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class InstrumentService {
+public class InstrumentService implements InstrumentServiceInterface {
     private final InstrumentRepository instrumentRepository;
     private final StatusRepository statusRepository;
 
@@ -32,12 +33,14 @@ public class InstrumentService {
         this.statusRepository = statusRepository;
     }
 
+    @Override
     public Instrument getById(Long id) {
         return instrumentRepository.findById(id)
                 .orElseThrow(() -> new InstrumentNotFoundException(
                         InstrumentConstants.INSTRUMENT_NOT_FOUND.getMessage()));
     }
 
+    @Override
     public Instrument create(Instrument instrument) {
         instrument.setDateCreated(LocalDateTime.now());
         instrument.setDateUpdated(LocalDateTime.now());
@@ -47,10 +50,12 @@ public class InstrumentService {
         return instrumentRepository.save(instrument);
     }
 
+    @Override
     public Optional<Instrument> getByTitle(String title) {
         return instrumentRepository.findByTitle(title);
     }
 
+    @Override
     public Instrument update(Long id, Instrument instrument) {
         Optional<Instrument> repInstrument = instrumentRepository.findById(id);
         if (repInstrument.isPresent()) {
@@ -96,10 +101,12 @@ public class InstrumentService {
         }
     }
 
+    @Override
     public Optional<Instrument> getByDescription(String description) {
         return instrumentRepository.findByDescription(description);
     }
 
+    @Override
     @Transactional
     public void delete(Long id) {
         Optional<Instrument> instrument = instrumentRepository.findById(id);
@@ -114,6 +121,7 @@ public class InstrumentService {
         }
     }
 
+    @Override
     public Page<Instrument> getPage(int page, int size) {
         return instrumentRepository.findAll(PageRequest.of(page, size));
     }

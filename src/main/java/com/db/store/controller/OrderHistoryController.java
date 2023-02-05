@@ -1,7 +1,7 @@
 package com.db.store.controller;
 
+import com.db.store.service.interfaces.OrderHistoryServiceInterface;
 import com.db.store.dto.OrderHistoryDTO;
-import com.db.store.service.OrderHistoryService;
 import com.db.store.utils.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,10 +13,10 @@ import java.util.List;
 
 @RestController
 public class OrderHistoryController {
-    private final OrderHistoryService orderHistoryService;
+    private final OrderHistoryServiceInterface orderHistoryService;
     private final ObjectMapper objectMapper;
 
-    public OrderHistoryController(OrderHistoryService orderHistoryService,
+    public OrderHistoryController(OrderHistoryServiceInterface orderHistoryService,
                                   ObjectMapper objectMapper) {
         this.orderHistoryService = orderHistoryService;
         this.objectMapper = objectMapper;

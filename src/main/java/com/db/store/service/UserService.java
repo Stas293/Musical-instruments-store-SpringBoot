@@ -7,6 +7,7 @@ import com.db.store.model.Role;
 import com.db.store.model.User;
 import com.db.store.repository.RoleRepository;
 import com.db.store.repository.UserRepository;
+import com.db.store.service.interfaces.UserServiceInterface;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,7 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class UserService {
+public class UserService implements UserServiceInterface {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
@@ -35,6 +36,7 @@ public class UserService {
         this.roleRepository = roleRepository;
     }
 
+    @Override
     public User register(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setEnabled(true);
@@ -49,18 +51,22 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Override
     public Optional<User> getUserByLogin(String login) {
         return userRepository.findByLogin(login);
     }
 
+    @Override
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
+    @Override
     public Optional<User> getUserByPhone(String phone) {
         return userRepository.findByPhone(phone);
     }
 
+    @Override
     public User disableUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(
                 () -> new UserNotFoundException(UserConstants.USER_NOT_FOUND.getMessage()));
@@ -68,6 +74,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Override
     public User enableUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(
                 () -> new UserNotFoundException(UserConstants.USER_NOT_FOUND.getMessage()));
@@ -75,6 +82,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Override
     public User updateUserRoles(Long id, List<Role> roleList) {
         Set<Role> roles = roleList.stream()
                 .map(role -> roleRepository.findByCode(role.getCode())
@@ -88,6 +96,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Override
     public User updateUserData(User user) {
         Optional<User> repUser = userRepository.findByLogin(
                 SecurityContextHolder.getContext().getAuthentication().getName()
@@ -138,15 +147,18 @@ public class UserService {
         oldUser.setDateModified(LocalDateTime.now());
     }
 
+    @Override
     public Page<User> getAllUsers(int page, int size) {
         return userRepository.findAll(PageRequest.of(page, size));
     }
 
+    @Override
     public User getUserById(Long id) {
         return userRepository.findById(id).orElseThrow(
                 () -> new UserNotFoundException(UserConstants.USER_NOT_FOUND.getMessage()));
     }
 
+    @Override
     @Transactional
     public User deleteUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(

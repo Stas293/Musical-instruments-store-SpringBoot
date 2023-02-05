@@ -1,5 +1,6 @@
 package com.db.store.model;
 
+import com.db.store.model.builders.OrderHistoryBuilder;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -37,6 +38,21 @@ public class OrderHistory {
     @ManyToOne(optional = false)
     @JoinColumn(name = "status_id", nullable = false)
     private Status status;
+
+    public OrderHistory() {
+    }
+
+    public OrderHistory(User user, LocalDateTime dateCreated, BigDecimal totalSum, String title, Status status) {
+        this.user = user;
+        this.dateCreated = dateCreated;
+        this.totalSum = totalSum;
+        this.title = title;
+        this.status = status;
+    }
+
+    public static OrderHistoryBuilder builder() {
+        return new OrderHistoryBuilder();
+    }
 
     public Status getStatus() {
         return status;

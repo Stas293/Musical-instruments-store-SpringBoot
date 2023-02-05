@@ -1,7 +1,7 @@
 package com.db.store.validation;
 
 import com.db.store.model.Role;
-import com.db.store.service.RoleService;
+import com.db.store.service.interfaces.RoleServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -9,10 +9,10 @@ import org.springframework.validation.Validator;
 
 @Component
 public class RoleValidator implements Validator {
-    private final RoleService roleService;
+    private final RoleServiceInterface roleService;
 
     @Autowired
-    public RoleValidator(RoleService roleService) {
+    public RoleValidator(RoleServiceInterface roleService) {
         this.roleService = roleService;
     }
 

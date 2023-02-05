@@ -1,6 +1,7 @@
 package com.db.store.service;
 
 import com.db.store.constants.UserConstants;
+import com.db.store.service.interfaces.OrderHistoryServiceInterface;
 import com.db.store.exceptions.UserNotFoundException;
 import com.db.store.model.OrderHistory;
 import com.db.store.model.User;
@@ -13,7 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OrderHistoryService {
+public class OrderHistoryService implements OrderHistoryServiceInterface {
     private final OrderHistoryRepository orderHistoryRepository;
     private final UserRepository userRepository;
 
@@ -24,10 +25,12 @@ public class OrderHistoryService {
         this.userRepository = userRepository;
     }
 
+    @Override
     public Page<OrderHistory> getAllOrderHistories(int page, int size) {
         return orderHistoryRepository.findAll(PageRequest.of(page, size));
     }
 
+    @Override
     public OrderHistory getOrderHistoryByIdForUser(Long id) {
         User user = userRepository.findByLogin(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UserNotFoundException(UserConstants.USER_NOT_FOUND.getMessage()));
@@ -35,12 +38,14 @@ public class OrderHistoryService {
                 () -> new UserNotFoundException(UserConstants.USER_NOT_FOUND.getMessage()));
     }
 
+    @Override
     public Page<OrderHistory> getAllOrderHistoriesByUser(int page, int size) {
         User user = userRepository.findByLogin(SecurityContextHolder.getContext().getAuthentication().getName())
                 .orElseThrow(() -> new UserNotFoundException(UserConstants.USER_NOT_FOUND.getMessage()));
         return orderHistoryRepository.findAllByUser(user, PageRequest.of(page, size));
     }
 
+    @Override
     public OrderHistory getOrderHistoryById(Long id) {
         return orderHistoryRepository.findById(id).orElseThrow(
                 () -> new UserNotFoundException(UserConstants.USER_NOT_FOUND.getMessage()));

@@ -1,7 +1,7 @@
 package com.db.store.validation;
 
 import com.db.store.model.User;
-import com.db.store.service.UserService;
+import com.db.store.service.interfaces.UserServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -9,10 +9,10 @@ import org.springframework.validation.Validator;
 
 @Component
 public class UserValidator implements Validator {
-    private final UserService userService;
+    private final UserServiceInterface userService;
 
     @Autowired
-    public UserValidator(UserService userService) {
+    public UserValidator(UserServiceInterface userService) {
         this.userService = userService;
     }
 

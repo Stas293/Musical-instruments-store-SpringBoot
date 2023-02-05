@@ -1,7 +1,7 @@
 package com.db.store.validation;
 
 import com.db.store.model.Status;
-import com.db.store.service.StatusService;
+import com.db.store.service.interfaces.StatusServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -9,10 +9,10 @@ import org.springframework.validation.Validator;
 
 @Component
 public class StatusValidator implements Validator {
-    private final StatusService statusService;
+    private final StatusServiceInterface statusService;
 
     @Autowired
-    public StatusValidator(StatusService statusService) {
+    public StatusValidator(StatusServiceInterface statusService) {
         this.statusService = statusService;
     }
 
