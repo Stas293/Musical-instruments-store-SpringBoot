@@ -1,9 +1,11 @@
 # Springboot Musical instruments store
 
 This is a simple musical instruments store made with Springboot as a backend. It uses a MySQL database to store the data. 
-Authentication is done with JWT. Communication with id done via JSON requests. Its main purpose is to be used with microservices.
+Authentication is done with JWT. Communication with id done via JSON requests. 
 
 You can use postman to test the API.
+
+![img.png](img.png)
 
 ## How to run
 
