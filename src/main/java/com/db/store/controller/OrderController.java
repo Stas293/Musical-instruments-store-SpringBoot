@@ -1,79 +1,64 @@
 package com.db.store.controller;
 
 import com.db.store.dto.OrderDTO;
-import com.db.store.model.Order;
-import com.db.store.service.interfaces.OrderServiceInterface;
-import com.db.store.utils.ObjectMapper;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import com.db.store.service.OrderService;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
+@AllArgsConstructor
+@Slf4j
 public class OrderController {
-    private final OrderServiceInterface orderService;
-    private final ObjectMapper objectMapper;
-
-    @Autowired
-    public OrderController(OrderServiceInterface orderService,
-                           ObjectMapper objectMapper) {
-        this.orderService = orderService;
-        this.objectMapper = objectMapper;
-    }
+    private final OrderService orderService;
 
     @PostMapping("/user/orders")
-    public ResponseEntity<OrderDTO> createOrder(@RequestBody @Valid OrderDTO orderDTO) {
-        Order order = objectMapper.map(orderDTO, Order.class);
-        return ResponseEntity.ok(
-                objectMapper.map(
-                        orderService.create(order), OrderDTO.class));
+    @ResponseStatus(HttpStatus.CREATED)
+    public OrderDTO createOrder(@RequestBody @Validated OrderDTO orderDTO,
+                                BindingResult bindingResult) {
+        return orderService.create(orderDTO, bindingResult);
     }
 
     @GetMapping("/user/orders")
-    public ResponseEntity<List<OrderDTO>> getOrdersForLoggedUser(@RequestParam(required = false, defaultValue = "0") int page,
-                                                                 @RequestParam(required = false, defaultValue = "5") int size) {
-        return ResponseEntity.ok(
-                objectMapper.mapList(
-                        orderService.getAllOrdersForLoggedUser(page, size).getContent(), OrderDTO.class));
+    @ResponseStatus(HttpStatus.OK)
+    public Page<OrderDTO> getOrdersForLoggedUser(@RequestParam(required = false, defaultValue = "0") int page,
+                                                 @RequestParam(required = false, defaultValue = "5") int size) {
+        return orderService.getAllOrdersForLoggedUser(page, size);
     }
 
     @GetMapping("/user/orders/{id}")
-    public ResponseEntity<OrderDTO> getOrderForUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(
-                objectMapper.map(
-                        orderService.getOrderForUserById(id), OrderDTO.class));
+    @ResponseStatus(HttpStatus.OK)
+    public OrderDTO getOrderForUserById(@PathVariable Long id) {
+        return orderService.getOrderForUserById(id);
     }
 
     @GetMapping("/seller/orders")
-    public ResponseEntity<List<OrderDTO>> getOrders(@RequestParam(required = false, defaultValue = "0") int page,
-                                                    @RequestParam(required = false, defaultValue = "5") int size) {
-        return ResponseEntity.ok(
-                objectMapper.mapList(
-                        orderService.getAllOrders(page, size).getContent(), OrderDTO.class));
+    @ResponseStatus(HttpStatus.OK)
+    public Page<OrderDTO> getOrders(@RequestParam(required = false, defaultValue = "0") int page,
+                                    @RequestParam(required = false, defaultValue = "5") int size) {
+        return orderService.getAllOrders(page, size);
     }
 
     @PatchMapping("/seller/orders/{id}")
-    public ResponseEntity<OrderDTO> setNextStatus(@PathVariable Long id) {
-        return ResponseEntity.ok(
-                objectMapper.map(
-                        orderService.setNextStatus(id), OrderDTO.class));
+    @ResponseStatus(HttpStatus.OK)
+    public OrderDTO setNextStatus(@PathVariable Long id) {
+        return orderService.setNextStatus(id);
     }
 
     @PatchMapping("/seller/orders/{id}/cancel")
-    public ResponseEntity<OrderDTO> cancelOrder(@PathVariable Long id) {
-        return ResponseEntity.ok(
-                objectMapper.map(
-                        orderService.cancelOrder(id), OrderDTO.class));
+    @ResponseStatus(HttpStatus.OK)
+    public OrderDTO cancelOrder(@PathVariable Long id) {
+        return orderService.cancelOrder(id);
     }
 
     @PutMapping("/user/orders/{id}")
-    public ResponseEntity<OrderDTO> updateOrder(@PathVariable Long id,
-                                                @RequestBody @Valid OrderDTO orderDTO) {
-        Order order = objectMapper.map(orderDTO, Order.class);
-        return ResponseEntity.ok(
-                objectMapper.map(
-                        orderService.updateOrder(id, order), OrderDTO.class));
+    @ResponseStatus(HttpStatus.OK)
+    public OrderDTO updateOrder(@PathVariable Long id,
+                                @RequestBody @Validated OrderDTO orderDTO) {
+        return orderService.updateOrder(id, orderDTO);
     }
 }
