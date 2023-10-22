@@ -5,7 +5,6 @@ import com.db.store.model.OrderHistory;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Component
 public class Convertor {
@@ -14,11 +13,10 @@ public class Convertor {
                 .map(instrumentOrder -> instrumentOrder.getPrice().multiply(BigDecimal.valueOf(instrumentOrder.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         return OrderHistory.builder()
-                .setTitle("Order " + order.getTitle())
-                .setDateCreated(LocalDateTime.now())
-                .setTotalSum(totalSum)
-                .setUser(order.getUser())
-                .setStatus(order.getStatus())
-                .createOrderHistory();
+                .title("Order " + order.getTitle())
+                .totalSum(totalSum)
+                .user(order.getUser())
+                .status(order.getStatus())
+                .build();
     }
 }
