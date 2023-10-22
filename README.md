@@ -1,37 +1,53 @@
-# Springboot Musical instruments store
+# Springboot Musical Instruments Store
 
-This is a simple musical instruments store made with Springboot as a backend. It uses a MySQL database to store the data. 
-Authentication is done with JWT. Communication with id done via JSON requests. 
+This is a simple musical instruments store built with Spring Boot 3.1.5 as the backend, utilizing a PostgreSQL database
+for data storage. Authentication is handled using JWT, and OAuth 2 can also be configured (don't forget to add keys
+in `application.yaml`). Communication is performed via JSON requests.
 
-You can use postman to test the API.
+You can use Postman to test the API, or visit `http://localhost:8080/swagger-ui` for API testing. The admin user
+is `admin` and the password is `admin`.
 
-![img.png](img.png)
+![Screenshot](img_1.png)
 
-## How to run
+## How to Run
 
-1. Clone the project
-2. Pull the MySQL image `docker pull mysql:latest`
-3. Create network `docker network create musical-instruments-network`
-4. Run MySQL container `docker run --name mysql-store --network musical-instruments-network -e MYSQL_ROOT_PASSWORD=***** -e MYSQL_DATABASE=Musical_instruments_store -e MYSQL_USER=***** -e MYSQL_PASSWORD=***** -d mysql:latest`
-5. Build the project `mvn clean install`
-6. Build the docker image `docker build -t spring-musical-store .`
-7. Run the docker image `docker run --network musical-instruments-network --name musical-store -p 8080:8080 -d spring-musical-store`
-8. You can access the MySQL database with your command line `docker exec -it *NETWORK ID* bash`
-9. Then you can access the database with `mysql -u*user* -p*password*`
-10. You can access the API with `http://localhost:8080`
-11. You can add roles to in the database with `INSERT INTO Musical_instruments_store.role(code, name) VALUES ("ROLE_USER", "user");` and so on
-12. You can add roles after you have registered a user with your MySQL command line
-13. Enjoy!
+1. Clone the project.
+2. Configure OAuth 2 and JWT in `application.yaml`.
+3. Use `docker-compose.yaml` to set up the PostgreSQL database, PgAdmin, and run the project.
+4. Build the project with `mvn clean install`.
+5. Access the API at `http://localhost:8080`.
 
-You can also use the docker-compose file to run the project.
+You can also run the project with `mvn spring-boot:run`. It will use additional `composer.yaml` to set up the database and PgAdmin.
 
-You can use `Requests.http` file to test the API.
+You can use the `Requests.http` file to test the API.
 
-## How to contribute
+## Technologies Used
 
-1. Fork the project
-2. Create a new branch
-3. Make your changes
-4. Commit your changes
-5. Push your branch
-6. Create a pull request
+- Java 21
+- Spring Boot 3.1.5
+- PostgreSQL
+- Hibernate
+- Spring Core
+- Spring Data JPA
+- Spring Security
+- Spring Web
+- Spring Validation
+- Spring DevTools
+- PgAdmin
+- Docker
+- Docker Compose
+- OAuth 2
+- JWT
+- Swagger
+- Lombok
+- MapStruct
+- Maven
+
+## How to Contribute
+
+1. Fork the project.
+2. Create a new branch.
+3. Make your changes.
+4. Commit your changes.
+5. Push your branch.
+6. Create a pull request.
