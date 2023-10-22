@@ -1,20 +1,16 @@
 package com.db.store.validation;
 
 import com.db.store.model.User;
-import com.db.store.service.interfaces.UserServiceInterface;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.db.store.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
 @Component
+@RequiredArgsConstructor
 public class UserValidator implements Validator {
-    private final UserServiceInterface userService;
-
-    @Autowired
-    public UserValidator(UserServiceInterface userService) {
-        this.userService = userService;
-    }
+    private final UserRepository userRepository;
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -25,16 +21,22 @@ public class UserValidator implements Validator {
     public void validate(Object target, Errors errors) {
         User user = (User) target;
 
-        if (userService.getUserByLogin(user.getLogin()).isPresent()) {
-            errors.rejectValue("login", "login.taken", "validation.login.taken");
-        }
+        userRepository.findByLogin(user.getLogin())
+                .ifPresent(user1 -> errors.rejectValue(
+                        "login",
+                        "User with this login already exists",
+                        "validation.user.login.exists"));
 
-        if (userService.getUserByEmail(user.getEmail()).isPresent()) {
-            errors.rejectValue("email", "email.taken", "validation.email.taken");
-        }
+        userRepository.findByEmail(user.getEmail())
+                .ifPresent(user1 -> errors.rejectValue(
+                        "email",
+                        "User with this email already exists",
+                        "validation.user.email.exists"));
 
-        if (userService.getUserByPhone(user.getPhone()).isPresent()) {
-            errors.rejectValue("phone", "phone.taken", "validation.phone.taken");
-        }
+        userRepository.findByPhone(user.getPhone())
+                .ifPresent(user1 -> errors.rejectValue(
+                        "phone",
+                        "User with this phone already exists",
+                        "validation.user.phone.exists"));
     }
 }
