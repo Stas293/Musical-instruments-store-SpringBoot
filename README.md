@@ -7,7 +7,7 @@ in `application.yaml`). Communication is performed via JSON requests.
 You can use Postman to test the API, or visit `http://localhost:8080/swagger-ui` for API testing. The admin user
 is `admin` and the password is `admin`.
 
-![Screenshot](img_1.png)
+![ERD diagram.png](musical_instruments.png)
 
 ## How to Run
 
