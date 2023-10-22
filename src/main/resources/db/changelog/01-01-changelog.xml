@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1691093284740-1" author="stasskorobogatov">
+        <createTable tableName="instrument">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_instrument"/>
+            </column>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="description" type="TEXT"/>
+            <column name="status_id" type="BIGINT"/>
+            <column name="price" type="DECIMAL(17, 2)" defaultValue="0.00"/>
+            <column name="created_at" type="DATETIME"/>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint tableName="instrument" columnNames="title"/>
+        <addUniqueConstraint tableName="instrument" columnNames="description"/>
+        <addNotNullConstraint tableName="instrument" columnName="description"/>
+        <addNotNullConstraint tableName="instrument" columnName="title"/>
+        <addNotNullConstraint tableName="instrument" columnName="status_id"/>
+        <addNotNullConstraint tableName="instrument" columnName="price"/>
+    </changeSet>
+    <changeSet id="1691093284740-2" author="stasskorobogatov">
+        <createTable tableName="instrument_aud">
+            <column name="rev" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_instrument_aud"/>
+            </column>
+            <column name="revtype" type="SMALLINT"/>
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_instrument_aud"/>
+            </column>
+            <column name="description" type="TEXT"/>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="price" type="DECIMAL(17, 2)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1691093284740-3" author="stasskorobogatov">
+        <createTable tableName="instrument_order">
+            <column name="instrument_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_instrumentorder"/>
+            </column>
+            <column name="order_id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_instrumentorder"/>
+            </column>
+            <column name="price" type="DECIMAL(17, 2)" defaultValue="0.00"/>
+            <column name="quantity" type="TINYINT" defaultValue="0"/>
+            <column name="created_at" type="DATETIME"/>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+        </createTable>
+        <addNotNullConstraint tableName="instrument_order" columnName="instrument_id"/>
+        <addNotNullConstraint tableName="instrument_order" columnName="order_id"/>
+        <addNotNullConstraint tableName="instrument_order" columnName="price"/>
+        <addNotNullConstraint tableName="instrument_order" columnName="quantity"/>
+    </changeSet>
+    <changeSet id="1691093284740-4" author="stasskorobogatov">
+        <createTable tableName="instrument_order_aud">
+            <column name="instrument_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="order_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="DECIMAL(17, 2)"/>
+            <column name="quantity" type="TINYINT"/>
+            <column name="rev" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revtype" type="SMALLINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1691093284740-5" author="stasskorobogatov">
+        <createTable tableName="next_status">
+            <column name="status_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="next_status_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1691093284740-6" author="stasskorobogatov">
+        <createTable tableName="order">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_order"/>
+            </column>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+            <column name="closed" type="BOOLEAN" defaultValue="false"/>
+        </createTable>
+        <addNotNullConstraint tableName="order" columnName="title"/>
+        <addNotNullConstraint tableName="order" columnName="status_id"/>
+        <addNotNullConstraint tableName="order" columnName="closed"/>
+        <addNotNullConstraint tableName="order" columnName="user_id"/>
+    </changeSet>
+    <changeSet id="1691093284740-7" author="stasskorobogatov">
+        <createTable tableName="order_aud">
+            <column name="rev" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_order_aud"/>
+            </column>
+            <column name="revtype" type="SMALLINT"/>
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_order_aud"/>
+            </column>
+            <column name="user_id" type="BIGINT"/>
+            <column name="date_created" type="DATETIME"/>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="closed" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1691093284740-8" author="stasskorobogatov">
+        <createTable tableName="order_history">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_orderhistory"/>
+            </column>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="total_sum" type="DECIMAL(17, 2)" defaultValue="0.00">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+        </createTable>
+        <addNotNullConstraint tableName="order_history" columnName="user_id"/>
+        <addNotNullConstraint tableName="order_history" columnName="total_sum"/>
+        <addNotNullConstraint tableName="order_history" columnName="title"/>
+        <addNotNullConstraint tableName="order_history" columnName="status_id"/>
+    </changeSet>
+    <changeSet id="1691093284740-9" author="stasskorobogatov">
+        <createTable tableName="revision">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_revision"/>
+            </column>
+            <column name="timestamp" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1691093284740-10" author="stasskorobogatov">
+        <createTable tableName="role">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_role"/>
+            </column>
+            <column name="code" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint tableName="role" columnNames="code"/>
+        <addUniqueConstraint tableName="role" columnNames="name"/>
+        <addNotNullConstraint tableName="role" columnName="code"/>
+        <addNotNullConstraint tableName="role" columnName="name"/>
+    </changeSet>
+    <changeSet id="1691093284740-11" author="stasskorobogatov">
+        <createTable tableName="status">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_status"/>
+            </column>
+            <column name="code" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="closed" type="BOOLEAN" defaultValue="false"/>
+        </createTable>
+        <addUniqueConstraint tableName="status" columnNames="code"/>
+        <addUniqueConstraint tableName="status" columnNames="name"/>
+        <addNotNullConstraint tableName="status" columnName="code"/>
+        <addNotNullConstraint tableName="status" columnName="name"/>
+        <addNotNullConstraint tableName="status" columnName="closed"/>
+    </changeSet>
+    <changeSet id="1691093284740-12" author="stasskorobogatov">
+        <createTable tableName="user_list">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_user_list"/>
+            </column>
+            <column name="login" type="VARCHAR(255)"/>
+            <column name="first_name" type="VARCHAR(255)"/>
+            <column name="last_name" type="VARCHAR(255)"/>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="phone" type="VARCHAR(255)"/>
+            <column name="password" type="VARCHAR(255)"/>
+            <column name="enabled" type="BOOLEAN"/>
+            <column name="created_at" type="DATETIME"/>
+            <column name="modified_at" type="DATETIME"/>
+            <column name="created_by" type="VARCHAR(255)"/>
+            <column name="modified_by" type="VARCHAR(255)"/>
+        </createTable>
+        <addUniqueConstraint tableName="user_list" columnNames="login" constraintName="uq_user_login"/>
+        <addUniqueConstraint tableName="user_list" columnNames="email" constraintName="uq_user_email"/>
+        <addUniqueConstraint tableName="user_list" columnNames="phone" constraintName="uq_user_phone"/>
+        <addNotNullConstraint tableName="user_list" columnName="login"/>
+        <addNotNullConstraint tableName="user_list" columnName="first_name"/>
+        <addNotNullConstraint tableName="user_list" columnName="last_name"/>
+        <addNotNullConstraint tableName="user_list" columnName="email"/>
+        <addNotNullConstraint tableName="user_list" columnName="phone"/>
+        <addNotNullConstraint tableName="user_list" columnName="password"/>
+        <addNotNullConstraint tableName="user_list" columnName="enabled"/>
+    </changeSet>
+    <changeSet id="1691093284740-13" author="stasskorobogatov">
+        <createTable tableName="user_list_aud">
+            <column name="rev" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_user_list_aud"/>
+            </column>
+            <column name="revtype" type="SMALLINT"/>
+            <column name="id" type="BIGINT">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_user_list_aud"/>
+            </column>
+            <column name="login" type="VARCHAR(255)"/>
+            <column name="first_name" type="VARCHAR(255)"/>
+            <column name="last_name" type="VARCHAR(255)"/>
+            <column name="email" type="VARCHAR(255)"/>
+            <column name="phone" type="VARCHAR(255)"/>
+            <column name="password" type="VARCHAR(255)"/>
+            <column name="enabled" type="BOOLEAN"/>
+            <column name="date_created" type="DATETIME"/>
+            <column name="date_modified" type="DATETIME"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="1691093284740-14" author="stasskorobogatov">
+        <createTable tableName="user_role">
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="1691093284740-15" author="stasskorobogatov">
+        <addPrimaryKey columnNames="rev, instrument_id, order_id" constraintName="pk_instrumentorder_aud"
+                       tableName="instrument_order_aud"/>
+    </changeSet>
+    <changeSet id="1691093284740-16" author="stasskorobogatov">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="instrument_order_aud"
+                                 constraintName="FK_INSTRUMENTORDER_AUD_ON_REV" referencedColumnNames="id"
+                                 referencedTableName="revision"/>
+    </changeSet>
+    <changeSet id="1691093284740-17" author="stasskorobogatov">
+        <addForeignKeyConstraint baseColumnNames="instrument_id" baseTableName="instrument_order"
+                                 constraintName="FK_INSTRUMENTORDER_ON_INSTRUMENT" referencedColumnNames="id"
+                                 referencedTableName="instrument"/>
+    </changeSet>
+    <changeSet id="1691093284740-18" author="stasskorobogatov">
+        <addForeignKeyConstraint baseColumnNames="order_id" baseTableName="instrument_order"
+                                 constraintName="FK_INSTRUMENTORDER_ON_ORDER" referencedColumnNames="id"
+                                 referencedTableName="order"/>
+    </changeSet>
+    <changeSet id="1691093284740-19" author="stasskorobogatov">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="instrument_aud"
+                                 constraintName="FK_INSTRUMENT_AUD_ON_REV" referencedColumnNames="id"
+                                 referencedTableName="revision"/>
+    </changeSet>
+    <changeSet id="1691093284740-20" author="stasskorobogatov">
+        <addForeignKeyConstraint baseColumnNames="status_id" baseTableName="instrument"
+                                 constraintName="FK_INSTRUMENT_ON_STATUS" referencedColumnNames="id"
+                                 referencedTableName="status"/>
+    </changeSet>
+    <changeSet id="1691093284740-21" author="stasskorobogatov">
+        <addForeignKeyConstraint baseColumnNames="status_id" baseTableName="order_history"
+                                 constraintName="FK_ORDERHISTORY_ON_STATUS" referencedColumnNames="id"
+                                 referencedTableName="status"/>
+    </changeSet>
+    <changeSet id="1691093284740-22" author="stasskorobogatov">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="order_history"
+                                 constraintName="FK_ORDERHISTORY_ON_USER" referencedColumnNames="id"
+                                 referencedTableName="user_list"/>
+    </changeSet>
+    <changeSet id="1691093284740-23" author="stasskorobogatov">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="order_aud" constraintName="FK_ORDER_AUD_ON_REV"
+                                 referencedColumnNames="id" referencedTableName="revision"/>
+    </changeSet>
+    <changeSet id="1691093284740-24" author="stasskorobogatov">
+        <addForeignKeyConstraint baseColumnNames="status_id" baseTableName="order" constraintName="FK_ORDER_ON_STATUS"
+                                 referencedColumnNames="id" referencedTableName="status"/>
+    </changeSet>
+    <changeSet id="1691093284740-25" author="stasskorobogatov">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="order" constraintName="FK_ORDER_ON_USER"
+                                 referencedColumnNames="id" referencedTableName="user_list"/>
+    </changeSet>
+    <changeSet id="1691093284740-26" author="stasskorobogatov">
+        <addForeignKeyConstraint baseColumnNames="rev" baseTableName="user_list_aud"
+                                 constraintName="FK_USER_LIST_AUD_ON_REV" referencedColumnNames="id"
+                                 referencedTableName="revision"/>
+    </changeSet>
+    <changeSet id="1691093284740-27" author="stasskorobogatov">
+        <addForeignKeyConstraint baseColumnNames="next_status_id" baseTableName="next_status"
+                                 constraintName="fk_nexsta_on_next_status" referencedColumnNames="id"
+                                 referencedTableName="status"/>
+    </changeSet>
+    <changeSet id="1691093284740-28" author="stasskorobogatov">
+        <addForeignKeyConstraint baseColumnNames="status_id" baseTableName="next_status"
+                                 constraintName="fk_nexsta_on_status" referencedColumnNames="id"
+                                 referencedTableName="status"/>
+    </changeSet>
+    <changeSet id="1691093284740-29" author="stasskorobogatov">
+        <addForeignKeyConstraint baseColumnNames="role_id" baseTableName="user_role"
+                                 constraintName="fk_user_role_on_role" referencedColumnNames="id"
+                                 referencedTableName="role"/>
+    </changeSet>
+    <changeSet id="1691093284740-30" author="stasskorobogatov">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_role"
+                                 constraintName="fk_user_role_on_user" referencedColumnNames="id"
+                                 referencedTableName="user_list"/>
+    </changeSet>
+
+</databaseChangeLog>
