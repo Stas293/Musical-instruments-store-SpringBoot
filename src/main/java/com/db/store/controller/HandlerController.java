@@ -1,46 +1,47 @@
 package com.db.store.controller;
 
 import com.db.store.exceptions.*;
-import com.db.store.model.error.Error;
+import com.db.store.utils.Error;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.util.List;
 import java.util.Objects;
 
-@ControllerAdvice
+@RestControllerAdvice
+@AllArgsConstructor
+@Slf4j
 public class HandlerController {
     private final MessageSource messageSource;
 
-    public HandlerController(MessageSource messageSource) {
-        this.messageSource = messageSource;
-    }
-
     @ExceptionHandler(StatusNotFoundException.class)
-    public ResponseEntity<Error> handleStatusNotFoundException(StatusNotFoundException e, WebRequest request) {
-        Error error = Error.builder()
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Error handleStatusNotFoundException(StatusNotFoundException e, WebRequest request) {
+        return Error.builder()
                 .code(HttpStatus.NOT_FOUND.name())
                 .message(
                         messageSource.getMessage(e.getMessage(), null, request.getLocale()))
                 .build();
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     @ExceptionHandler(RoleNotFoundException.class)
-    public ResponseEntity<Error> handleRoleNotFoundException(RoleNotFoundException e, WebRequest request) {
-        Error error = Error.builder()
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Error handleRoleNotFoundException(RoleNotFoundException e, WebRequest request) {
+        return Error.builder()
                 .code(HttpStatus.NOT_FOUND.name())
                 .message(
                         messageSource.getMessage(e.getMessage(), null, request.getLocale()))
                 .build();
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     @ExceptionHandler(StatusConflictException.class)
@@ -114,7 +115,6 @@ public class HandlerController {
                 .build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
-
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

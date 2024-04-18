@@ -1,79 +1,51 @@
 package com.db.store.controller;
 
 import com.db.store.dto.StatusDTO;
-import com.db.store.model.Status;
-import com.db.store.service.interfaces.StatusServiceInterface;
-import com.db.store.utils.ObjectMapper;
-import com.db.store.validation.StatusValidator;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.MethodParameter;
-import org.springframework.http.ResponseEntity;
+import com.db.store.service.StatusService;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/admin/status")
+@AllArgsConstructor
 public class StatusController {
-    private final StatusServiceInterface statusService;
-    private final StatusValidator statusValidator;
-    private final ObjectMapper objectMapper;
+    private final StatusService statusService;
 
-    @Autowired
-    public StatusController(StatusServiceInterface statusService,
-                            StatusValidator statusValidator,
-                            ObjectMapper objectMapper) {
-        this.statusService = statusService;
-        this.statusValidator = statusValidator;
-        this.objectMapper = objectMapper;
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public Page<StatusDTO> getStatuses(@RequestParam(required = false, defaultValue = "0") int page,
+                                       @RequestParam(required = false, defaultValue = "5") int size) {
+        return statusService.getStatuses(page, size);
     }
 
-    @GetMapping()
-    public ResponseEntity<List<StatusDTO>> getStatuses(@RequestParam(required = false, defaultValue = "0") int page,
-                                                       @RequestParam(required = false, defaultValue = "5") int size) {
-        List<StatusDTO> statusDTOS = objectMapper.mapList(statusService.getStatuses(page, size).getContent(), StatusDTO.class);
-        return ResponseEntity.ok().body(statusDTOS);
-    }
-
-    @PostMapping()
-    public ResponseEntity<StatusDTO> createStatus(@RequestBody @Valid StatusDTO statusDTO,
-                                               BindingResult bindingResult) throws MethodArgumentNotValidException {
-        Status status = objectMapper.map(statusDTO, Status.class);
-        statusValidator.validate(status, bindingResult);
-        if (bindingResult.hasErrors()) {
-            throw new MethodArgumentNotValidException(
-                    new MethodParameter(this.getClass().getDeclaredMethods()[0], 0),
-                    bindingResult
-            );
-        }
-        return ResponseEntity.ok(
-                objectMapper.map(
-                        statusService.saveStatus(status), StatusDTO.class));
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public StatusDTO createStatus(@RequestBody @Validated StatusDTO statusDTO,
+                                  BindingResult bindingResult) {
+        return statusService.saveStatus(statusDTO, bindingResult);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<StatusDTO> getStatus(@PathVariable Long id) {
-        return ResponseEntity.ok(
-                objectMapper.map(
-                        statusService.getStatusById(id), StatusDTO.class));
+    @ResponseStatus(HttpStatus.OK)
+    public StatusDTO getStatus(@PathVariable Long id) {
+        return statusService.getStatusById(id);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<StatusDTO> updateStatus(@PathVariable Long id,
-                                               @Valid @RequestBody StatusDTO statusDTO) {
-        Status status = objectMapper.map(statusDTO, Status.class);
-        return ResponseEntity.ok(
-                objectMapper.map(
-                        statusService.updateStatusById(id, status), StatusDTO.class));
+    @ResponseStatus(HttpStatus.OK)
+    public StatusDTO updateStatus(@PathVariable Long id,
+                                  @Validated @RequestBody StatusDTO statusDTO,
+                                  BindingResult bindingResult) {
+        return statusService.updateStatusById(id, statusDTO, bindingResult);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<StatusDTO> deleteStatus(@PathVariable Long id) {
-        return ResponseEntity.ok(
-                objectMapper.map(
-                        statusService.deleteStatusById(id), StatusDTO.class));
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteStatus(@PathVariable Long id) {
+        statusService.deleteStatusById(id);
     }
 }
