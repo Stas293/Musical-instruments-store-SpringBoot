@@ -43,5 +43,9 @@ springdoc:
         - email
         - profile
     oauth2-redirect-url: http://localhost:8080/login/oauth2/code/google
-jwt:
-  secret: verysecretkeyWhichIsVeryLongAndHardToGuessSoYouShouldChangeItPleaseAndThankYou
+application:
+  jwt:
+    secret: verysecretkeyWhichIsVeryLongAndHardToGuessSoYouShouldChangeItPleaseAndThankYou
+    header: Authorization
+    prefix: Bearer
+    expiration: 86400000
