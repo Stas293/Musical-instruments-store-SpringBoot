@@ -1,107 +1,59 @@
 package com.db.store.model;
 
-import com.db.store.model.builders.OrderHistoryBuilder;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.proxy.HibernateProxy;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.Objects;
 
+@Builder
+@Getter
+@Setter
+@ToString
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@DynamicUpdate
 @Table(name = "order_history")
-public class OrderHistory {
+public class OrderHistory extends AuditingEntity<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "history_id", nullable = false)
     private Long id;
-    @ManyToOne()
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @ToString.Exclude
     private User user;
 
-    @Column(name = "date_created")
-    private LocalDateTime dateCreated;
-
-    @NotNull(message = "validation.order.totalSum.notNull")
-    @Column(name = "total_sum", nullable = false, precision = 17, scale = 2)
+    @Column(nullable = false, precision = 17, scale = 2)
     private BigDecimal totalSum;
 
-    @Size(max = 255, min = 5, message = "validation.order.title.size")
-    @NotBlank(message = "validation.text.error.required.field")
-    @Pattern(regexp = "^[a-zA-Z0-9_ ]*$", message = "validation.order.title.pattern")
-    @Column(name = "title", nullable = false)
     private String title;
 
-    @NotNull(message = "validation.order.status.notNull")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id", nullable = false)
+    @ToString.Exclude
     private Status status;
 
-    public OrderHistory() {
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy hibernateProxy
+                ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass()
+                : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy hibernateProxy
+                ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass()
+                : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        OrderHistory that = (OrderHistory) o;
+        return getId() != null && Objects.equals(getId(), that.getId());
     }
 
-    public OrderHistory(User user, LocalDateTime dateCreated, BigDecimal totalSum, String title, Status status) {
-        this.user = user;
-        this.dateCreated = dateCreated;
-        this.totalSum = totalSum;
-        this.title = title;
-        this.status = status;
+    @Override
+    public final int hashCode() {
+        return getClass().hashCode();
     }
-
-    public static OrderHistoryBuilder builder() {
-        return new OrderHistoryBuilder();
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public BigDecimal getTotalSum() {
-        return totalSum;
-    }
-
-    public void setTotalSum(BigDecimal totalSum) {
-        this.totalSum = totalSum;
-    }
-
-    public LocalDateTime getDateCreated() {
-        return dateCreated;
-    }
-
-    public void setDateCreated(LocalDateTime dateCreated) {
-        this.dateCreated = dateCreated;
-    }
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
 }

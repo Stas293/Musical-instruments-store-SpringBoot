@@ -2,61 +2,44 @@ package com.db.store.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.validation.constraints.NotNull;
-import org.hibernate.Hibernate;
+import lombok.*;
+import org.hibernate.proxy.HibernateProxy;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @Embeddable
+@ToString
 public class InstrumentOrderId implements Serializable {
-    @Serial
-    private static final long serialVersionUID = -7042492300005014107L;
-    @NotNull
     @Column(name = "instrument_id", nullable = false)
     private Long instrumentId;
 
-    @NotNull
     @Column(name = "order_id", nullable = false)
     private Long orderId;
 
-    public InstrumentOrderId(Long instrumentId, Long orderId) {
-        this.instrumentId = instrumentId;
-        this.orderId = orderId;
-    }
-
-    public InstrumentOrderId() {
-    }
-
-    public Long getInstrumentId() {
-        return instrumentId;
-    }
-
-    public void setInstrumentId(Long instrumentId) {
-        this.instrumentId = instrumentId;
-    }
-
-    public Long getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
-    }
-
     @Override
-    public boolean equals(Object o) {
+    public final boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        InstrumentOrderId entity = (InstrumentOrderId) o;
-        return Objects.equals(this.orderId, entity.orderId) &&
-                Objects.equals(this.instrumentId, entity.instrumentId);
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy hibernateProxy
+                ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass()
+                : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy hibernateProxy
+                ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass()
+                : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        InstrumentOrderId that = (InstrumentOrderId) o;
+        return getInstrumentId() != null && Objects.equals(getInstrumentId(), that.getInstrumentId())
+                && getOrderId() != null && Objects.equals(getOrderId(), that.getOrderId());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(orderId, instrumentId);
+    public final int hashCode() {
+        return Objects.hash(instrumentId, orderId);
     }
-
 }

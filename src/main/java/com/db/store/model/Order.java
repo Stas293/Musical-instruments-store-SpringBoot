@@ -1,100 +1,68 @@
 package com.db.store.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
+import org.hibernate.proxy.HibernateProxy;
 
-import java.time.LocalDateTime;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
+@Builder
+@Getter
+@Setter
+@ToString
 @Entity
-@Table(name = "order_list")
-public class Order {
+@NoArgsConstructor
+@AllArgsConstructor
+@DynamicUpdate
+@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+@Table(name = "`order`")
+public class Order extends AuditingEntity<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "order_id", nullable = false)
     private Long id;
-    @ManyToOne()
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @ToString.Exclude
     private User user;
 
-    @Column(name = "date_created")
-    private LocalDateTime dateCreated;
-
-    @Size(max = 255, min = 3, message = "validation.order.title.size")
-    @NotBlank(message = "validation.text.error.required.field")
-    @Pattern(regexp = "^[a-zA-Z0-9 ]+$", message = "validation.order.title.pattern")
-    @Column(name = "title", nullable = false)
     private String title;
-    @ManyToOne(optional = false)
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id", nullable = false)
+    @ToString.Exclude
+    @NotAudited
     private Status status;
 
-    @NotNull(message = "validation.order.closed.notNull")
-    @Column(name = "closed", nullable = false)
     private Boolean closed = false;
 
     @OneToMany(mappedBy = "order")
-    private Set<InstrumentOrder> instrumentOrders = new LinkedHashSet<>();
+    @ToString.Exclude
+    private List<InstrumentOrder> instrumentOrders = new ArrayList<>();
 
-    public Set<InstrumentOrder> getInstrumentOrders() {
-        return instrumentOrders;
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy hibernateProxy
+                ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass()
+                : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy hibernateProxy
+                ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass()
+                : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Order order = (Order) o;
+        return getId() != null && Objects.equals(getId(), order.getId());
     }
 
-    public void setInstrumentOrders(Set<InstrumentOrder> instrumentOrders) {
-        this.instrumentOrders = instrumentOrders;
-    }
-
-    public Boolean getClosed() {
-        return closed;
-    }
-
-    public void setClosed(Boolean closed) {
-        this.closed = closed;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public LocalDateTime getDateCreated() {
-        return dateCreated;
-    }
-
-    public void setDateCreated(LocalDateTime dateCreated) {
-        this.dateCreated = dateCreated;
-    }
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+    @Override
+    public final int hashCode() {
+        return getClass().hashCode();
     }
 }
