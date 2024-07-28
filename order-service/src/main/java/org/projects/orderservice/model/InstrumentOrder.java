@@ -17,7 +17,7 @@ public class InstrumentOrder {
 
     private BigDecimal price;
 
-    private Byte quantity;
+    private Integer quantity;
 
     private String instrumentId;
 }

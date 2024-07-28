@@ -1,6 +1,5 @@
 package org.projects.orderservice.dto;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -16,7 +15,7 @@ public record OrderCreationDto(
     @Pattern(regexp = "^[a-zA-Z0-9 ]+$", message = "Title must contain only letters, numbers and spaces")
     String title,
 
-    @Min(value = 1, message = "There must be at least one instrument in the order")
+    @Size(min = 1, message = "There must be at least one instrument in the order")
     List<InstrumentOrderCreateDto> instrumentOrders
 ) {
 }

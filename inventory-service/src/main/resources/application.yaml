@@ -9,3 +9,5 @@ spring:
   threads:
     virtual:
       enabled: true
+server:
+  port: 0

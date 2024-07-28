@@ -13,7 +13,7 @@ import java.util.List;
 public record OrderHistoryCreationDto (
     String user,
 
-    @Min(value = 1, message = "There must be at least one instrument in the order")
+    @Size(min = 1, message = "There must be at least one instrument in the order")
     List<InstrumentOrderDto> instrumentOrders,
 
     @Size(max = 255, min = 5, message = "Title must be between 5 and 255 characters")

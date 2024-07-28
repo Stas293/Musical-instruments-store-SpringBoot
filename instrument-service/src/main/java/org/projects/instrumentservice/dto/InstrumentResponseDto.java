@@ -15,8 +15,8 @@ public record InstrumentResponseDto(
 
         String title,
 
-//    StatusDTO status,
+        BigDecimal price,
 
-        BigDecimal price
+        Integer quantity
 ) {
 }

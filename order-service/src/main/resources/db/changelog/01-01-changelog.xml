@@ -41,7 +41,7 @@
             <column name="price" type="DECIMAL(17, 2)">
                 <constraints nullable="false"/>
             </column>
-            <column name="quantity" type="TINYINT">
+            <column name="quantity" type="INTEGER">
                 <constraints nullable="false"/>
             </column>
             <column name="instrument_id" type="VARCHAR(255)">

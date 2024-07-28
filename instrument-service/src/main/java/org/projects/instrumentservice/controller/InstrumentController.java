@@ -6,12 +6,11 @@ import org.projects.instrumentservice.dto.InstrumentCreateDto;
 import org.projects.instrumentservice.dto.InstrumentResponseDto;
 import org.projects.instrumentservice.exception.ValidationException;
 import org.projects.instrumentservice.service.InstrumentService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @Slf4j
@@ -35,8 +34,9 @@ public class InstrumentController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<InstrumentResponseDto> getAllInstruments() {
-        return instrumentService.getAllInstruments();
+    public Page<InstrumentResponseDto> getAllInstruments(@RequestParam(required = false, defaultValue = "0") int page,
+                                                         @RequestParam(required = false, defaultValue = "5") int size) {
+        return instrumentService.getInstrumentsPage(page, size);
     }
 
     @GetMapping("/{id}")

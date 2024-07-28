@@ -2,5 +2,12 @@ spring:
   application:
     name: order-service
   datasource:
-    hikari:
-      schema: order_service
+    name: order_service
+    url: jdbc:postgresql://localhost:55485/order_service
+    username: myuser
+    password: secret
+  threads:
+    virtual:
+      enabled: true
+server:
+  port: 0

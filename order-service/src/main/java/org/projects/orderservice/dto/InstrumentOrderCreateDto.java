@@ -11,7 +11,7 @@ import lombok.Builder;
 public record InstrumentOrderCreateDto(
         @NotNull(message = "Quantity is required")
         @Min(value = 0, message = "Quantity must be greater than 0")
-        Byte quantity,
+        Integer quantity,
 
         @NotNull(message = "Instrument ID is required")
         String instrumentId) {

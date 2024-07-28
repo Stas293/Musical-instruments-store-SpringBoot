@@ -9,9 +9,10 @@ import org.projects.instrumentservice.mapper.InstrumentCreateDtoMapper;
 import org.projects.instrumentservice.mapper.InstrumentResponseDtoMapper;
 import org.projects.instrumentservice.model.Instrument;
 import org.projects.instrumentservice.repository.InstrumentRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 @Slf4j
@@ -21,6 +22,7 @@ public class InstrumentService {
     private final InstrumentRepository instrumentRepository;
     private final InstrumentCreateDtoMapper instrumentCreateMapper;
     private final InstrumentResponseDtoMapper instrumentResponseMapper;
+    private final WebClient.Builder webClientBuilder;
 
     public void createInstrument(InstrumentCreateDto instrumentDto) {
         Instrument instrument = instrumentCreateMapper.toEntity(instrumentDto);
@@ -28,15 +30,27 @@ public class InstrumentService {
         log.info("Instrument {} is created", instrument.getId());
     }
 
-    public List<InstrumentResponseDto> getAllInstruments() {
-        return instrumentRepository.findAll().stream()
-                .map(instrumentResponseMapper::toDto)
-                .toList();
+    public Page<InstrumentResponseDto> getInstrumentsPage(int page, int size) {
+        return instrumentRepository.findAll(PageRequest.of(page, size))
+                .map(instrumentResponseMapper::toDto);
     }
 
     public InstrumentResponseDto getInstrumentById(String id) {
         return instrumentRepository.findById(id)
+                .map(this::fetchAvailability)
                 .map(instrumentResponseMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Instrument with id " + id + " not found"));
+    }
+
+    private Instrument fetchAvailability(Instrument instrument) {
+        Integer inventory = webClientBuilder.build()
+                .get()
+                .uri(String.format("http://inventory-service/api/inventory/%s", instrument.getId()))
+                .retrieve()
+                .bodyToMono(Integer.class)
+                .block();
+
+        instrument.setQuantity(inventory);
+        return instrument;
     }
 }

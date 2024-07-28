@@ -1,9 +1,9 @@
 spring:
   application:
-    name: instrument-service
+    name: history-order-service
   data:
     mongodb:
-      database: instruments
+      database: history_orders
       host: localhost
       port: 55486
       username: root

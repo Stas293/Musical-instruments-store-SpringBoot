@@ -3,10 +3,11 @@ package org.projects.inventoryservice.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.projects.inventoryservice.service.InventoryService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/inventory")
@@ -16,8 +17,16 @@ public class InventoryController {
     private final InventoryService inventoryService;
 
     @GetMapping("/{instrumentId}")
+    @ResponseStatus(HttpStatus.OK)
     public Integer getInventory(@PathVariable String instrumentId) {
         log.info("Finding inventory for instrument id: {}", instrumentId);
         return inventoryService.getInventory(instrumentId);
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, Integer> getInventoryByInstrumentIds(@RequestParam List<String> instrumentIds) {
+        log.info("Finding inventory for instrument ids: {}", instrumentIds);
+        return inventoryService.getInventoryByInstrumentIds(instrumentIds);
     }
 }
