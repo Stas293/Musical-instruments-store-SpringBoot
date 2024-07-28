@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: inventory-service
+  datasource:
+    name: inventory_service
+    url: jdbc:postgresql://localhost:55485/inventory_service
+    username: myuser
+    password: secret
+  threads:
+    virtual:
+      enabled: true

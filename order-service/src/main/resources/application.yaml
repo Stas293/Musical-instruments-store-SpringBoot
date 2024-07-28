@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: order-service
+  datasource:
+    hikari:
+      schema: order_service

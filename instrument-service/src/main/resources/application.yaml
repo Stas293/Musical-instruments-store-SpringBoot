@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: instrument-service
+  data:
+    mongodb:
+      database: instruments
