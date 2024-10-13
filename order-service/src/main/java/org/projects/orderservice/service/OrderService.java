@@ -3,14 +3,12 @@ package org.projects.orderservice.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.projects.orderservice.constants.DefaultConstants;
-import org.projects.orderservice.dto.OrderCreationDto;
-import org.projects.orderservice.dto.OrderHistoryCreationDto;
-import org.projects.orderservice.dto.OrderResponseDto;
-import org.projects.orderservice.dto.StatusResponseDto;
+import org.projects.orderservice.dto.*;
+import org.projects.orderservice.exception.InventoryUpdateException;
 import org.projects.orderservice.exception.OrderCreationException;
 import org.projects.orderservice.exception.ResourceNotFoundException;
-import org.projects.orderservice.mapper.OrderHistoryCreationDtoMapper;
 import org.projects.orderservice.mapper.OrderCreateDtoMapper;
+import org.projects.orderservice.mapper.OrderHistoryCreationDtoMapper;
 import org.projects.orderservice.mapper.OrderResponseDtoMapper;
 import org.projects.orderservice.mapper.StatusResponseDtoMapper;
 import org.projects.orderservice.model.InstrumentOrder;
@@ -20,14 +18,20 @@ import org.projects.orderservice.model.Status;
 import org.projects.orderservice.repository.OrderRepository;
 import org.projects.orderservice.repository.StatusRepository;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.env.Environment;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,8 +45,10 @@ public class OrderService {
     private final StatusResponseDtoMapper statusResponseDtoMapper;
     private final OrderHistoryCreationDtoMapper orderHistoryCreationDtoMapper;
     private final WebClient.Builder webClientBuilder;
+    private final Environment environment;
 
-    public Long createOrder(OrderCreationDto orderDto) {
+    @PreAuthorize("hasAnyRole('USER', 'SELLER', 'ADMIN')")
+    public Long createOrder(OrderCreationDto orderDto, Principal principal) {
         log.info("Creating order: {}", orderDto);
         return Optional.of(orderCreateDtoMapper.toEntity(orderDto))
                 .map(entity -> {
@@ -50,25 +56,98 @@ public class OrderService {
                             DefaultConstants.DEFAULT_STATUS.getValue()).get().getId());
                     return entity;
                 })
-                .map(order -> {
-                    order.setUser("Admin");
-                    order.getInstrumentOrders().forEach(instrumentOrder -> instrumentOrder.setPrice(BigDecimal.valueOf(293.0)));
-                    return order;
-                })
                 .map(this::checkAvailability)
-                .map(orderRepository::save)
+                .map(order -> setOrderFieldsFromInstrumentRepository(principal, order))
+                .map(this::saveOrder)
                 .map(Order::getId)
                 .orElseThrow(() -> new OrderCreationException("Failed to create order"));
     }
 
+    private Order setOrderFieldsFromInstrumentRepository(Principal principal, Order order) {
+        order.setUser(principal.getName());
+        List<String> instrumentIds = order.getInstrumentOrders().stream()
+                .map(InstrumentOrder::getInstrumentId)
+                .toList();
+        log.info("Getting instruments from inventory-service for ids: {}", instrumentIds);
+        Map<String, InstrumentServiceResponseDto> instrumentsMap = webClientBuilder.build()
+                .get()
+                .uri("http://instrument-service/api/instruments/inventory",
+                        uriBuilder -> uriBuilder.queryParam("instrumentIds", instrumentIds)
+                                .build())
+                .header("Authorization",
+                        "Bearer %s%s".formatted(environment.getProperty("api.key.instrument"),
+                                environment.getProperty("application.jwt.secret")))
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<InstrumentServiceResponseDto>>() {
+                })
+                .block()
+                .stream()
+                .collect(Collectors.toMap(InstrumentServiceResponseDto::id, instrument -> instrument));
+        log.info("Received instruments: {}", instrumentsMap);
+        order.getInstrumentOrders().forEach(instrumentOrder -> {
+            InstrumentServiceResponseDto instrument = instrumentsMap.get(instrumentOrder.getInstrumentId());
+            if (instrument == null) {
+                throw new OrderCreationException("Instrument not found");
+            }
+            instrumentOrder.setPrice(instrument.price());
+        });
+        return order;
+    }
+
+    private Order saveOrder(Order order) {
+        Map<String, Integer> instrumentQuantities = null;
+        try {
+            instrumentQuantities = order.getInstrumentOrders().stream()
+                    .collect(Collectors.toMap(InstrumentOrder::getInstrumentId, InstrumentOrder::getQuantity));
+            changeInstrumentQuantity(instrumentQuantities);
+            return orderRepository.save(order);
+        } catch (InventoryUpdateException e) {
+            log.error("Failed to update inventory");
+            throw e;
+        } catch (Exception e) {
+            log.error("Failed to create order");
+            if (instrumentQuantities != null) {
+                instrumentQuantities.replaceAll((k, v) -> -v);
+                changeInstrumentQuantity(instrumentQuantities);
+            }
+            throw new OrderCreationException("Failed to create order");
+        }
+    }
+
+    private void changeInstrumentQuantity(Map<String, Integer> instrumentQuantities) {
+        ClientResponse authorization = webClientBuilder.build()
+                .patch()
+                .uri("http://inventory-service/api/inventory/change")
+                .bodyValue(instrumentQuantities)
+                .header("Authorization",
+                        "Bearer %s%s".formatted(
+                                environment.getProperty("api.key.inventory"),
+                                environment.getProperty("application.jwt.secret")))
+                .exchangeToMono(Mono::just)
+                .block();
+        if (authorization.statusCode().isError()) {
+            throw new InventoryUpdateException("Failed to update inventory");
+        }
+        log.info("Inventory updated successfully");
+    }
+
     @Transactional(readOnly = true)
-    public OrderResponseDto getOrder(Long id) {
+    @PreAuthorize("hasAnyRole('USER', 'SELLER', 'ADMIN')")
+    public OrderResponseDto getOrder(Long id, Principal principal) {
         log.info("Getting order by id: {}", id);
         return orderRepository.findById(id)
                 .map(order -> {
                     order.setStatus(statusRepository.findById(order.getStatusId())
                             .orElseThrow(() -> new ResourceNotFoundException("Status not found")));
                     return order;
+                })
+                .filter(order -> {
+                    if (principal instanceof Authentication authentication) {
+                        return authentication.getAuthorities().stream()
+                                .noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))
+                                || order.getUser().equals(principal.getName());
+                    }
+                    return true;
                 })
                 .map(orderResponseDtoMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
@@ -83,6 +162,9 @@ public class OrderService {
                 .uri("http://inventory-service/api/inventory",
                         uriBuilder -> uriBuilder.queryParam("instrumentIds", instrumentIds)
                         .build())
+                .header("Authorization",
+                        "Bearer %s%s".formatted(environment.getProperty("api.key.inventory"),
+                                environment.getProperty("application.jwt.secret")))
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<Map<String, Integer>>() {
                 })
@@ -99,6 +181,7 @@ public class OrderService {
         return order;
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'SELLER', 'ADMIN')")
     public OrderResponseDto updateOrder(Long id, String status) {
         log.info("Updating order with id: {} to status: {}", id, status);
         Optional<Order> order = orderRepository.findById(id);
@@ -124,6 +207,9 @@ public class OrderService {
             OrderHistoryCreationDto orderHistoryCreationDto = orderHistoryCreationDtoMapper.toDto(order.get());
             String historyOrderId = webClientBuilder.build().post()
                     .uri("http://history-order-service/api/order-history")
+                    .header("Authorization",
+                            "Bearer %s%s".formatted(environment.getProperty("api.key.history"),
+                                    environment.getProperty("application.jwt.secret")))
                     .bodyValue(orderHistoryCreationDto)
                     .retrieve()
                     .bodyToMono(String.class)
@@ -137,6 +223,7 @@ public class OrderService {
         }
     }
 
+    @PreAuthorize("hasAnyRole('SELLER', 'ADMIN')")
     public List<StatusResponseDto> getNextStatuses(Long id) {
         log.info("Getting next statuses for order with id: {}", id);
         return orderRepository.findById(id)

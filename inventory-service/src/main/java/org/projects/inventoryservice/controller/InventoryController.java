@@ -29,4 +29,11 @@ public class InventoryController {
         log.info("Finding inventory for instrument ids: {}", instrumentIds);
         return inventoryService.getInventoryByInstrumentIds(instrumentIds);
     }
+
+    @PatchMapping("/change")
+    @ResponseStatus(HttpStatus.OK)
+    public void changeInventory(@RequestBody Map<String, Integer> instrumentIdToQuantity) {
+        log.info("Changing inventory: {}", instrumentIdToQuantity);
+        inventoryService.changeInventory(instrumentIdToQuantity);
+    }
 }

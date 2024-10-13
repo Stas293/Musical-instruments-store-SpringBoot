@@ -4,6 +4,10 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/users/**
         - id: history-order-service
           uri: lb://history-order-service
           predicates:
@@ -32,3 +36,9 @@ spring:
             - Path=/eureka/**
   main:
     web-application-type: reactive
+
+application:
+  jwt:
+    secret: verysecretkeyWhichIsVeryLongAndHardToGuessSoYouShouldChangeItPleaseAndThankYou
+    header: Authorization
+    prefix: Bearer

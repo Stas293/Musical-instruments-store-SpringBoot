@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.projects.inventoryservice.model.Inventory;
 import org.projects.inventoryservice.repository.InventoryRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,15 +17,25 @@ import java.util.stream.Collectors;
 public class InventoryService {
     private final InventoryRepository inventoryRepository;
 
+    @PreAuthorize("hasAnyRole('USER', 'SELLER', 'ADMIN', 'SERVICE')")
     public Integer getInventory(String instrumentId) {
         return inventoryRepository.findByInstrumentId(instrumentId)
                 .map(Inventory::getQuantity)
                 .orElse(0);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'SELLER', 'ADMIN', 'SERVICE')")
     public Map<String, Integer> getInventoryByInstrumentIds(List<String> instrumentIds) {
         return inventoryRepository.findByInstrumentIdIn(instrumentIds)
                 .stream()
                 .collect(Collectors.toMap(Inventory::getInstrumentId, Inventory::getQuantity));
+    }
+
+    @PreAuthorize("hasAnyRole('SELLER', 'ADMIN', 'SERVICE')")
+    public void changeInventory(Map<String, Integer> instrumentIdToQuantity) {
+        List<Inventory> byInstrumentIdIn = inventoryRepository.findByInstrumentIdIn(instrumentIdToQuantity.keySet());
+        byInstrumentIdIn.forEach(inventory -> inventory.setQuantity(
+                inventory.getQuantity() - instrumentIdToQuantity.get(inventory.getInstrumentId())));
+        inventoryRepository.saveAll(byInstrumentIdIn);
     }
 }

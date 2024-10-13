@@ -12,6 +12,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -23,20 +24,21 @@ public class OrderController {
 
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public Long createOrder(@RequestBody @Validated OrderCreationDto orderDto,
+    public Long createOrder(Principal principal,
+            @RequestBody @Validated OrderCreationDto orderDto,
                             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             log.info("Validation error: {}", bindingResult.getFieldErrors());
             throw new ValidationException(bindingResult.getFieldErrors().toString());
         }
 
-        return orderService.createOrder(orderDto);
+        return orderService.createOrder(orderDto, principal);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public OrderResponseDto getOrder(@PathVariable Long id) {
-        return orderService.getOrder(id);
+    public OrderResponseDto getOrder(@PathVariable Long id, Principal principal) {
+        return orderService.getOrder(id, principal);
     }
 
     @PatchMapping("/{id}/update")

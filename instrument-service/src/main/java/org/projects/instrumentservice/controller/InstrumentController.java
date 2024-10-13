@@ -12,6 +12,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -43,5 +45,12 @@ public class InstrumentController {
     @ResponseStatus(HttpStatus.OK)
     public InstrumentResponseDto getInstrumentById(@PathVariable String id) {
         return instrumentService.getInstrumentById(id);
+    }
+
+    @GetMapping("/inventory")
+    @ResponseStatus(HttpStatus.OK)
+    public List<InstrumentResponseDto> getInventoryByInstrumentIds(@RequestParam List<String> instrumentIds) {
+        log.info("Finding instruments for instrument ids: {}", instrumentIds);
+        return instrumentService.getInstrumentsByIds(instrumentIds);
     }
 }

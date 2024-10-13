@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    name: auth_service
+    url: jdbc:postgresql://localhost:53574/auth_service
+    username: myuser
+    password: secret
+  application:
+    name: auth-service
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        batch_size: 100
+        fetch_size: 100
+        format_sql: true
+        use_sql_comments: true
+        use_reflection_optimizer: true
+        generate_statistics: true
+    open-in-view: false
+    database: postgresql
+  threads:
+    virtual:
+      enabled: true
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+server:
+  port: 0
+application:
+  jwt:
+    secret: verysecretkeyWhichIsVeryLongAndHardToGuessSoYouShouldChangeItPleaseAndThankYou
+    header: Authorization
+    prefix: Bearer
+    expiration: 86400000

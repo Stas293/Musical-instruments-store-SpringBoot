@@ -5,10 +5,10 @@ spring:
     mongodb:
       database: instruments
       host: localhost
-      port: 55486
+      port: 27017
       username: root
       password: secret
-      uri: mongodb://root:secret@localhost:55486
+      uri: mongodb://root:secret@localhost:27017
   threads:
     virtual:
       enabled: true
@@ -18,3 +18,13 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
 server:
   port: 0
+application:
+  jwt:
+    secret: verysecretkeyWhichIsVeryLongAndHardToGuessSoYouShouldChangeItPleaseAndThankYou
+    header: Authorization
+    prefix: Bearer
+    expiration: 86400000
+api:
+  key:
+    inventory: INVENTORY_SERVICE_TOKEN
+    self: INSTRUMENT_SERVICE_TOKEN

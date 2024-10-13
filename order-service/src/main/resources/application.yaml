@@ -3,7 +3,7 @@ spring:
     name: order-service
   datasource:
     name: order_service
-    url: jdbc:postgresql://localhost:55485/order_service
+    url: jdbc:postgresql://localhost:53574/order_service
     username: myuser
     password: secret
   threads:
@@ -11,3 +11,14 @@ spring:
       enabled: true
 server:
   port: 0
+application:
+  jwt:
+    secret: verysecretkeyWhichIsVeryLongAndHardToGuessSoYouShouldChangeItPleaseAndThankYou
+    header: Authorization
+    prefix: Bearer
+    expiration: 86400000
+api:
+  key:
+    inventory: INVENTORY_SERVICE_TOKEN
+    instrument: INSTRUMENT_SERVICE_TOKEN
+    history: HISTORY_ORDER_SERVICE_TOKEN

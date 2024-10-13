@@ -12,6 +12,7 @@ import org.projects.historyorderservice.model.OrderHistory;
 import org.projects.historyorderservice.repository.OrderHistoryRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,11 +28,13 @@ public class OrderHistoryService {
     private final OrderHistoryCreationDtoMapper orderHistoryCreationMapper;
     private final OrderHistoryResponseDtoMapper orderHistoryResponseMapper;
 
+    @PreAuthorize("hasAnyRole('SELLER', 'ADMIN')")
     public Page<OrderHistoryResponseDto> getAllOrderHistories(int page, int size) {
         return orderHistoryRepository.findAll(PageRequest.of(page, size))
                 .map(orderHistoryResponseMapper::toDto);
     }
 
+    @PreAuthorize("hasAnyRole('USER', 'SELLER', 'ADMIN')")
     public OrderHistoryResponseDto getOrderHistoryByIdForUser(String id) {
 //        String login = SecurityContextHolder.getContext().getAuthentication().getName();
 //        User user = userRepository.findByLogin(login)
@@ -41,6 +44,7 @@ public class OrderHistoryService {
                 .orElseThrow(() -> new ResourceNotFoundException("Order history with id " + id + " not found"));
     }
 
+    @PreAuthorize("hasAnyRole('SELLER', 'SERVICE')")
     public String createOrderHistoryForUser(OrderHistoryCreationDto orderHistoryResponseDto) {
         return Optional.of(orderHistoryCreationMapper.toEntity(orderHistoryResponseDto))
                 .map(orderHistoryRepository::save)
