@@ -5,7 +5,12 @@ spring:
     user:
       name: eureka
       password: password
+  threads:
+    virtual:
+      enabled: true
 eureka:
+  username: eureka
+  password: passw0rd
   instance:
     hostname: localhost
   client:

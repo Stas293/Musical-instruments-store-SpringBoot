@@ -20,3 +20,7 @@ application:
 api:
   key:
     self: INVENTORY_SERVICE_TOKEN
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:passw0rd@localhost:8761/eureka/

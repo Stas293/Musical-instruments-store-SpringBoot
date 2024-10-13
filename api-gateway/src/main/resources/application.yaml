@@ -42,3 +42,7 @@ application:
     secret: verysecretkeyWhichIsVeryLongAndHardToGuessSoYouShouldChangeItPleaseAndThankYou
     header: Authorization
     prefix: Bearer
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:passw0rd@localhost:8761/eureka/
