@@ -1,4 +1,4 @@
-package com.db.store.constants;
+package org.projects.instrumentservice.constants;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

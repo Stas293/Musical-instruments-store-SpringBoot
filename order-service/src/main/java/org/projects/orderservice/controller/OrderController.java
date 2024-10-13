@@ -7,6 +7,7 @@ import org.projects.orderservice.dto.OrderResponseDto;
 import org.projects.orderservice.dto.StatusResponseDto;
 import org.projects.orderservice.exception.ValidationException;
 import org.projects.orderservice.service.OrderService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -39,6 +40,21 @@ public class OrderController {
     @ResponseStatus(HttpStatus.OK)
     public OrderResponseDto getOrder(@PathVariable Long id, Principal principal) {
         return orderService.getOrder(id, principal);
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public Page<OrderResponseDto> getOrders(@RequestParam(required = false, defaultValue = "0") int page,
+                                            @RequestParam(required = false, defaultValue = "5") int size,
+                                            Principal principal) {
+        return orderService.getOrders(page, size, principal);
+    }
+
+    @GetMapping("/user")
+    @ResponseStatus(HttpStatus.OK)
+    public Page<OrderResponseDto> getOrdersForUser(@RequestParam(required = false, defaultValue = "0") int page,
+                                                   @RequestParam(required = false, defaultValue = "5") int size) {
+        return orderService.getOrdersForUsers(page, size);
     }
 
     @PatchMapping("/{id}/update")

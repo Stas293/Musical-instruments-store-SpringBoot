@@ -19,6 +19,8 @@ import org.projects.orderservice.repository.OrderRepository;
 import org.projects.orderservice.repository.StatusRepository;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -237,5 +239,19 @@ public class OrderService {
                 .map(statusResponseDtoMapper::toDto)
                 .toList();
 
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    public Page<OrderResponseDto> getOrders(int page, int size, Principal principal) {
+        log.info("Getting orders for user: {}", principal.getName());
+        return orderRepository.findAllByUser(principal.getName(), PageRequest.of(page, size))
+                .map(orderResponseDtoMapper::toDto);
+    }
+
+    @PreAuthorize("hasAnyRole('SELLER', 'ADMIN')")
+    public Page<OrderResponseDto> getOrdersForUsers(int page, int size) {
+        log.info("Getting orders for users");
+        return orderRepository.findAll(PageRequest.of(page, size))
+                .map(orderResponseDtoMapper::toDto);
     }
 }

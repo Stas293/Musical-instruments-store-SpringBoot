@@ -36,4 +36,11 @@ public class InventoryController {
         log.info("Changing inventory: {}", instrumentIdToQuantity);
         inventoryService.changeInventory(instrumentIdToQuantity);
     }
+
+    @PostMapping("/{instrumentId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void setInventory(@PathVariable String instrumentId, @RequestParam Integer quantity) {
+        log.info("Setting inventory for instrument id: {} to quantity: {}", instrumentId, quantity);
+        inventoryService.setInventory(instrumentId, quantity);
+    }
 }

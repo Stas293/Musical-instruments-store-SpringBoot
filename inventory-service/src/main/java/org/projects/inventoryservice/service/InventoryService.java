@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,5 +38,19 @@ public class InventoryService {
         byInstrumentIdIn.forEach(inventory -> inventory.setQuantity(
                 inventory.getQuantity() - instrumentIdToQuantity.get(inventory.getInstrumentId())));
         inventoryRepository.saveAll(byInstrumentIdIn);
+    }
+
+    @PreAuthorize("hasAnyRole('SELLER', 'ADMIN', 'SERVICE')")
+    public void setInventory(String instrumentId, Integer quantity) {
+        Optional<Inventory> inventory = inventoryRepository.findByInstrumentId(instrumentId);
+        if (inventory.isPresent()) {
+            inventory.get().setQuantity(quantity);
+            inventoryRepository.save(inventory.get());
+        } else {
+            inventoryRepository.save(Inventory.builder()
+                    .instrumentId(instrumentId)
+                    .quantity(quantity)
+                    .build());
+        }
     }
 }

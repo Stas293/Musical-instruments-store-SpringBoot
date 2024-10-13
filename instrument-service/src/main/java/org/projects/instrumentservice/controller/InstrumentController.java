@@ -22,16 +22,11 @@ public class InstrumentController {
 
     private final InstrumentService instrumentService;
 
-    @PostMapping("/create")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createInstrument(@RequestBody @Validated InstrumentCreateDto instrumentDto,
                                  BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            log.info("Validation error: {}", bindingResult.getAllErrors());
-            throw new ValidationException(bindingResult.getFieldErrors().toString());
-        }
-
-        instrumentService.createInstrument(instrumentDto);
+        instrumentService.createInstrument(instrumentDto, bindingResult);
     }
 
     @GetMapping
@@ -52,5 +47,19 @@ public class InstrumentController {
     public List<InstrumentResponseDto> getInventoryByInstrumentIds(@RequestParam List<String> instrumentIds) {
         log.info("Finding instruments for instrument ids: {}", instrumentIds);
         return instrumentService.getInstrumentsByIds(instrumentIds);
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public InstrumentResponseDto updateInstrument(@PathVariable String id,
+                                          @RequestBody @Validated InstrumentCreateDto instrumentDTO,
+                                          BindingResult bindingResult) {
+        return instrumentService.update(id, instrumentDTO, bindingResult);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteInstrument(@PathVariable String id) {
+        instrumentService.delete(id);
     }
 }

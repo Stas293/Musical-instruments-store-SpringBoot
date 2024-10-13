@@ -12,6 +12,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @AllArgsConstructor
 @Slf4j
@@ -22,14 +24,23 @@ public class OrderHistoryController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Page<OrderHistoryResponseDto> getOrdersForLoggedUser(@RequestParam(required = false, defaultValue = "0") int page,
-                                                                @RequestParam(required = false, defaultValue = "5") int size) {
-        return orderHistoryService.getAllOrderHistories(page, size);
+                                                                @RequestParam(required = false, defaultValue = "5") int size,
+                                                                Principal principal) {
+        return orderHistoryService.getAllOrderHistories(page, size, principal);
+    }
+
+    @GetMapping("/user")
+    @ResponseStatus(HttpStatus.OK)
+    public Page<OrderHistoryResponseDto> getOrdersForUser(@RequestParam(required = false, defaultValue = "0") int page,
+                                                          @RequestParam(required = false, defaultValue = "5") int size) {
+        return orderHistoryService.getAllOrderHistoriesForUser(page, size);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public OrderHistoryResponseDto getOrderForUserById(@PathVariable String id) {
-        return orderHistoryService.getOrderHistoryByIdForUser(id);
+    public OrderHistoryResponseDto getOrderForUserById(@PathVariable String id,
+                                                       Principal principal) {
+        return orderHistoryService.getOrderHistoryByIdForUser(id, principal);
     }
 
     @PostMapping

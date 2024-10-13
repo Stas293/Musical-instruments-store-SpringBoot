@@ -1,10 +1,8 @@
 package org.projects.instrumentservice.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Builder;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.math.BigDecimal;
 
@@ -23,10 +21,11 @@ public record InstrumentCreateDto (
     @NotBlank(message = "Title is required")
     String title,
 
-//    @NotNull(message = "validation.instrument.status.notNull")
-//    StatusDTO status,
-
     @NotNull(message = "Price is required")
-    BigDecimal price
+    BigDecimal price,
+
+    @DefaultValue("0")
+    @Min(value = 0, message = "Quantity must be greater than or equal to 0")
+    Integer quantity
     ){
 }

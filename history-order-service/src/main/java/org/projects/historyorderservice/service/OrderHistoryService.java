@@ -13,9 +13,11 @@ import org.projects.historyorderservice.repository.OrderHistoryRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.Optional;
 
 
@@ -28,18 +30,23 @@ public class OrderHistoryService {
     private final OrderHistoryCreationDtoMapper orderHistoryCreationMapper;
     private final OrderHistoryResponseDtoMapper orderHistoryResponseMapper;
 
-    @PreAuthorize("hasAnyRole('SELLER', 'ADMIN')")
-    public Page<OrderHistoryResponseDto> getAllOrderHistories(int page, int size) {
-        return orderHistoryRepository.findAll(PageRequest.of(page, size))
+    @PreAuthorize("hasAnyRole('USER', 'SELLER', 'ADMIN')")
+    public Page<OrderHistoryResponseDto> getAllOrderHistories(int page, int size, Principal principal) {
+        return orderHistoryRepository.findAllByUser(PageRequest.of(page, size), principal.getName())
                 .map(orderHistoryResponseMapper::toDto);
     }
 
     @PreAuthorize("hasAnyRole('USER', 'SELLER', 'ADMIN')")
-    public OrderHistoryResponseDto getOrderHistoryByIdForUser(String id) {
-//        String login = SecurityContextHolder.getContext().getAuthentication().getName();
-//        User user = userRepository.findByLogin(login)
-//                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND.getMessage()));
+    public OrderHistoryResponseDto getOrderHistoryByIdForUser(String id, Principal principal) {
         return orderHistoryRepository.findById(id)
+                .filter(orderHistory -> {
+                    if (principal instanceof Authentication authentication) {
+                        return authentication.getAuthorities().stream()
+                                .noneMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_USER"))
+                                || orderHistory.getUser().equals(principal.getName());
+                    }
+                    return true;
+                })
                 .map(orderHistoryResponseMapper::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("Order history with id " + id + " not found"));
     }
@@ -50,5 +57,12 @@ public class OrderHistoryService {
                 .map(orderHistoryRepository::save)
                 .map(OrderHistory::getId)
                 .orElseThrow(() -> new OrderHistoryCreationException("Failed to create order history"));
+    }
+
+    @PreAuthorize("hasAnyRole('SELLER', 'ADMIN')")
+    public Page<OrderHistoryResponseDto> getAllOrderHistoriesForUser(int page, int size) {
+        log.info("Getting all order histories for users");
+        return orderHistoryRepository.findAll(PageRequest.of(page, size))
+                .map(orderHistoryResponseMapper::toDto);
     }
 }
