@@ -13,4 +13,6 @@ public interface InventoryRepository extends CrudRepository<Inventory, Long> {
     List<Inventory> findByInstrumentIdIn(List<String> instrumentIds);
 
     List<Inventory> findByInstrumentIdIn(Set<String> strings);
+
+    void deleteByInstrumentId(String instrumentId);
 }

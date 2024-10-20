@@ -1,7 +1,7 @@
 spring:
   datasource:
     name: auth_service
-    url: jdbc:postgresql://localhost:53574/auth_service
+    url: jdbc:postgresql://localhost:5432/auth_service
     username: myuser
     password: secret
   application:

@@ -30,7 +30,7 @@ public class InventoryController {
         return inventoryService.getInventoryByInstrumentIds(instrumentIds);
     }
 
-    @PatchMapping("/change")
+    @PutMapping
     @ResponseStatus(HttpStatus.OK)
     public void changeInventory(@RequestBody Map<String, Integer> instrumentIdToQuantity) {
         log.info("Changing inventory: {}", instrumentIdToQuantity);
@@ -42,5 +42,11 @@ public class InventoryController {
     public void setInventory(@PathVariable String instrumentId, @RequestParam Integer quantity) {
         log.info("Setting inventory for instrument id: {} to quantity: {}", instrumentId, quantity);
         inventoryService.setInventory(instrumentId, quantity);
+    }
+
+    @DeleteMapping ("/api/inventory/{instrumentId}")
+    public void removeInventory(@PathVariable String instrumentId) {
+        log.info("Removing inventory for instrument id: {}", instrumentId);
+        inventoryService.removeInventory(instrumentId);
     }
 }

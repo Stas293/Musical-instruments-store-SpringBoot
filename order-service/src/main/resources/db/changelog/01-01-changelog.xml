@@ -74,13 +74,15 @@
                                  baseColumnNames="status_id"
                                  constraintName="fk_order_status"
                                  referencedTableName="status"
-                                 referencedColumnNames="id"/>
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
 
         <addForeignKeyConstraint baseTableName="instrument_order"
                                  baseColumnNames="order"
                                  constraintName="fk_instrument_order_order"
                                  referencedTableName="order"
-                                 referencedColumnNames="id"/>
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
 
         <addForeignKeyConstraint baseTableName="next_status"
                                  baseColumnNames="status_id"

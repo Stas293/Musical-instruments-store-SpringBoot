@@ -53,4 +53,9 @@ public class InventoryService {
                     .build());
         }
     }
+
+    @PreAuthorize("hasAnyRole('SELLER', 'ADMIN', 'SERVICE')")
+    public void removeInventory(String instrumentId) {
+        inventoryRepository.deleteByInstrumentId(instrumentId);
+    }
 }

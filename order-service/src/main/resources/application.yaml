@@ -3,7 +3,7 @@ spring:
     name: order-service
   datasource:
     name: order_service
-    url: jdbc:postgresql://localhost:53574/order_service
+    url: jdbc:postgresql://localhost:5432/order_service
     username: myuser
     password: secret
   threads:

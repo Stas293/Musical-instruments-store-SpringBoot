@@ -2,6 +2,7 @@ package org.projects.instrumentservice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.projects.instrumentservice.client.InventoryClient;
 import org.projects.instrumentservice.constants.InstrumentConstants;
 import org.projects.instrumentservice.dto.InstrumentCreateDto;
 import org.projects.instrumentservice.dto.InstrumentResponseDto;
@@ -21,13 +22,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -39,7 +38,7 @@ public class InstrumentService {
     private final InstrumentResponseDtoMapper instrumentResponseMapper;
     private final InstrumentValidator instrumentValidator;
     private final Environment environment;
-    private final WebClient.Builder webClientBuilder;
+    private final InventoryClient inventoryClient;
 
     @PreAuthorize("hasAnyRole('SELLER', 'ADMIN')")
     public String createInstrument(InstrumentCreateDto instrumentDto, BindingResult bindingResult) {
@@ -65,16 +64,11 @@ public class InstrumentService {
     }
 
     private void setAvailability(Instrument instrument) {
-        webClientBuilder.build()
-                .post()
-                .uri(String.format("http://inventory-service/api/inventory/%s?quantity=%s", instrument.getId(), instrument.getQuantity()))
-                .header("Authorization",
-                        "Bearer %s%s".formatted(
-                                environment.getProperty("api.key.inventory"),
-                                environment.getProperty("application.jwt.secret")))
-                .retrieve()
-                .bodyToMono(Void.class)
-                .block();
+        inventoryClient.setInventory("Bearer %s%s".formatted(
+                        environment.getProperty("api.key.inventory"),
+                        environment.getProperty("application.jwt.secret")),
+                instrument.getId(),
+                instrument.getQuantity());
     }
 
     @PreAuthorize("hasAnyRole('USER', 'SELLER', 'ADMIN')")
@@ -92,16 +86,11 @@ public class InstrumentService {
     }
 
     private Instrument fetchAvailability(Instrument instrument) {
-        Integer inventory = webClientBuilder.build()
-                .get()
-                .uri(String.format("http://inventory-service/api/inventory/%s", instrument.getId()))
-                .header("Authorization",
-                        "Bearer %s%s".formatted(
-                                environment.getProperty("api.key.inventory"),
-                                environment.getProperty("application.jwt.secret")))
-                .retrieve()
-                .bodyToMono(Integer.class)
-                .block();
+        Integer inventory = inventoryClient.getInventory(
+                "Bearer %s%s".formatted(
+                        environment.getProperty("api.key.inventory"),
+                        environment.getProperty("application.jwt.secret")),
+                instrument.getId());
 
         instrument.setQuantity(inventory);
         return instrument;
@@ -112,7 +101,7 @@ public class InstrumentService {
         return instrumentRepository.findByIdIn(instrumentIds)
                 .stream()
                 .map(instrumentResponseMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @PreAuthorize("hasRole('SELLER')")
@@ -182,15 +171,9 @@ public class InstrumentService {
     }
 
     private void removeAvailability(String id) {
-        webClientBuilder.build()
-                .delete()
-                .uri(String.format("http://inventory-service/api/inventory/%s", id))
-                .header("Authorization",
-                        "Bearer %s%s".formatted(
-                                environment.getProperty("api.key.inventory"),
-                                environment.getProperty("application.jwt.secret")))
-                .retrieve()
-                .bodyToMono(Void.class)
-                .block();
+        inventoryClient.removeInventory("Bearer %s%s".formatted(
+                environment.getProperty("api.key.inventory"),
+                environment.getProperty("application.jwt.secret")),
+                id);
     }
 }

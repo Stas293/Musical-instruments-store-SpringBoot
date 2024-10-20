@@ -2,6 +2,9 @@ package org.projects.orderservice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.projects.orderservice.client.HistoryOrderClient;
+import org.projects.orderservice.client.InstrumentClient;
+import org.projects.orderservice.client.InventoryClient;
 import org.projects.orderservice.constants.DefaultConstants;
 import org.projects.orderservice.dto.*;
 import org.projects.orderservice.exception.InventoryUpdateException;
@@ -17,7 +20,6 @@ import org.projects.orderservice.model.Order;
 import org.projects.orderservice.model.Status;
 import org.projects.orderservice.repository.OrderRepository;
 import org.projects.orderservice.repository.StatusRepository;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,9 +27,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.security.Principal;
 import java.util.List;
@@ -46,8 +45,10 @@ public class OrderService {
     private final OrderResponseDtoMapper orderResponseDtoMapper;
     private final StatusResponseDtoMapper statusResponseDtoMapper;
     private final OrderHistoryCreationDtoMapper orderHistoryCreationDtoMapper;
-    private final WebClient.Builder webClientBuilder;
+    private final InstrumentClient instrumentClient;
     private final Environment environment;
+    private final InventoryClient inventoryClient;
+    private final HistoryOrderClient historyOrderClient;
 
     @PreAuthorize("hasAnyRole('USER', 'SELLER', 'ADMIN')")
     public Long createOrder(OrderCreationDto orderDto, Principal principal) {
@@ -71,18 +72,10 @@ public class OrderService {
                 .map(InstrumentOrder::getInstrumentId)
                 .toList();
         log.info("Getting instruments from inventory-service for ids: {}", instrumentIds);
-        Map<String, InstrumentServiceResponseDto> instrumentsMap = webClientBuilder.build()
-                .get()
-                .uri("http://instrument-service/api/instruments/inventory",
-                        uriBuilder -> uriBuilder.queryParam("instrumentIds", instrumentIds)
-                                .build())
-                .header("Authorization",
-                        "Bearer %s%s".formatted(environment.getProperty("api.key.instrument"),
-                                environment.getProperty("application.jwt.secret")))
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<InstrumentServiceResponseDto>>() {
-                })
-                .block()
+        Map<String, InstrumentServiceResponseDto> instrumentsMap = instrumentClient.getInventoryByInstrumentIds(
+                "Bearer %s%s".formatted(environment.getProperty("api.key.instrument"),
+                                environment.getProperty("application.jwt.secret")),
+                        instrumentIds)
                 .stream()
                 .collect(Collectors.toMap(InstrumentServiceResponseDto::id, instrument -> instrument));
         log.info("Received instruments: {}", instrumentsMap);
@@ -117,17 +110,12 @@ public class OrderService {
     }
 
     private void changeInstrumentQuantity(Map<String, Integer> instrumentQuantities) {
-        ClientResponse authorization = webClientBuilder.build()
-                .patch()
-                .uri("http://inventory-service/api/inventory/change")
-                .bodyValue(instrumentQuantities)
-                .header("Authorization",
-                        "Bearer %s%s".formatted(
-                                environment.getProperty("api.key.inventory"),
-                                environment.getProperty("application.jwt.secret")))
-                .exchangeToMono(Mono::just)
-                .block();
-        if (authorization.statusCode().isError()) {
+        try {
+            inventoryClient.changeInventory("Bearer %s%s".formatted(
+                    environment.getProperty("api.key.inventory"),
+                    environment.getProperty("application.jwt.secret")), instrumentQuantities);
+        } catch (Exception e) {
+            log.error("Failed to update inventory");
             throw new InventoryUpdateException("Failed to update inventory");
         }
         log.info("Inventory updated successfully");
@@ -160,17 +148,9 @@ public class OrderService {
                 .map(InstrumentOrder::getInstrumentId)
                 .toList();
         log.info("Getting inventory for instrument ids: {}", instrumentIds);
-        Map<String, Integer> availabilityMap = webClientBuilder.build().get()
-                .uri("http://inventory-service/api/inventory",
-                        uriBuilder -> uriBuilder.queryParam("instrumentIds", instrumentIds)
-                        .build())
-                .header("Authorization",
+        Map<String, Integer> availabilityMap = inventoryClient.getInventoryByInstrumentIds(
                         "Bearer %s%s".formatted(environment.getProperty("api.key.inventory"),
-                                environment.getProperty("application.jwt.secret")))
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Map<String, Integer>>() {
-                })
-                .block();
+                                environment.getProperty("application.jwt.secret")), instrumentIds);
         log.info("Received availability map: {}", availabilityMap);
         order.getInstrumentOrders().forEach(instrumentOrder -> {
             Integer quantity = availabilityMap.get(instrumentOrder.getInstrumentId());
@@ -207,15 +187,10 @@ public class OrderService {
         if (newStatus.get().getClosed()) {
             order.get().setClosed(true);
             OrderHistoryCreationDto orderHistoryCreationDto = orderHistoryCreationDtoMapper.toDto(order.get());
-            String historyOrderId = webClientBuilder.build().post()
-                    .uri("http://history-order-service/api/order-history")
-                    .header("Authorization",
+            String historyOrderId = historyOrderClient.createOrderForUser(
                             "Bearer %s%s".formatted(environment.getProperty("api.key.history"),
-                                    environment.getProperty("application.jwt.secret")))
-                    .bodyValue(orderHistoryCreationDto)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
+                                    environment.getProperty("application.jwt.secret")),
+                    orderHistoryCreationDto);
             log.info("Created history order with id: {}", historyOrderId);
 
             orderRepository.deleteById(id);
