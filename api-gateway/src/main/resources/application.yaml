@@ -1,39 +1,6 @@
 spring:
   application:
     name: api-gateway
-  cloud:
-    gateway:
-      routes:
-        - id: auth-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/api/users/**
-        - id: history-order-service
-          uri: lb://history-order-service
-          predicates:
-            - Path=/api/order-history/**
-        - id: order-service
-          uri: lb://order-service
-          predicates:
-            - Path=/api/orders/**
-        - id: instrument-service
-          uri: lb://instrument-service
-          predicates:
-            - Path=/api/instruments/**
-        - id: inventory-service
-          uri: lb://inventory-service
-          predicates:
-            - Path=/api/inventory/**
-        - id: eureka-service
-          uri: http://localhost:8761
-          predicates:
-            - Path=/eureka
-          filters:
-            - RewritePath=/eureka,/
-        - id: eureka-static
-          uri: http://localhost:8761
-          predicates:
-            - Path=/eureka/**
   main:
     web-application-type: reactive
 
