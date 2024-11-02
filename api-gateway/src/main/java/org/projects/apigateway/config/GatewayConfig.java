@@ -26,6 +26,21 @@ public class GatewayConfig {
                         .uri("http://localhost:8761"))
                 .route("eureka-static", r -> r.path("/eureka/**")
                         .uri("http://localhost:8761"))
+                .route("auth-service-docs", r -> r.path("/docs/auth-service/v3/api-docs")
+                        .filters(f -> f.rewritePath("/docs/auth-service/v3/api-docs", "/v3/api-docs"))
+                        .uri("lb://auth-service"))
+                .route("history-order-service-docs", r -> r.path("/docs/history-order-service/v3/api-docs")
+                        .filters(f -> f.rewritePath("/docs/history-order-service/v3/api-docs", "/v3/api-docs"))
+                        .uri("lb://history-order-service"))
+                .route("order-service-docs", r -> r.path("/docs/order-service/v3/api-docs")
+                        .filters(f -> f.rewritePath("/docs/order-service/v3/api-docs", "/v3/api-docs"))
+                        .uri("lb://order-service"))
+                .route("instrument-service-docs", r -> r.path("/docs/instrument-service/v3/api-docs")
+                        .filters(f -> f.rewritePath("/docs/instrument-service/v3/api-docs", "/v3/api-docs"))
+                        .uri("lb://instrument-service"))
+                .route("inventory-service-docs", r -> r.path("/docs/inventory-service/v3/api-docs")
+                        .filters(f -> f.rewritePath("/docs/inventory-service/v3/api-docs", "/v3/api-docs"))
+                        .uri("lb://inventory-service"))
                 .build();
     }
 }

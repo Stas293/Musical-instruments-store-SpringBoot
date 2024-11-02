@@ -29,12 +29,14 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
                                     FilterChain chain) throws ServletException, IOException {
         try {
             String jwtToken = jwtUtils.getJwt(request);
-            if (checkIfInterServiceRequest(request, response, chain, jwtToken)) return;
-            DecodedJWT decodedJWT = jwtUtils.validateToken(jwtToken);
-            if (decodedJWT.getClaim("authorities") != null) {
-                Authentication authentication = jwtUtils.getAuthentication(decodedJWT);
-                if (authentication != null) {
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (jwtUtils.checkJWTToken(jwtToken)) {
+                if (checkIfInterServiceRequest(request, response, chain, jwtToken)) return;
+                DecodedJWT decodedJWT = jwtUtils.validateToken(jwtToken);
+                if (decodedJWT.getClaim("authorities") != null) {
+                    Authentication authentication = jwtUtils.getAuthentication(decodedJWT);
+                    if (authentication != null) {
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
             }
         } catch (JWTVerificationException e) {

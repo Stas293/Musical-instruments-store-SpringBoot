@@ -22,6 +22,16 @@ import reactor.core.publisher.Mono;
 public class SecurityConfig {
     private final JWTUtils jwtUtils;
 
+    private final String[] SWAGGER_WHITELIST = {
+            "/v3/api-docs/**",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/swagger-resources/**",
+            "/api-docs/**",
+            "/webjars/**",
+            "/docs/**"
+    };
+
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http.csrf(ServerHttpSecurity.CsrfSpec::disable)
@@ -29,6 +39,7 @@ public class SecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/eureka/**").permitAll()
                         .pathMatchers("/api/users/login", "/api/users/register").permitAll()
+                        .pathMatchers(SWAGGER_WHITELIST).permitAll()
                         .anyExchange().authenticated())
                 .oauth2ResourceServer(resourceServerCustomizer ->
                         resourceServerCustomizer.authenticationManagerResolver(reactiveAuthenticationManagerResolver()))

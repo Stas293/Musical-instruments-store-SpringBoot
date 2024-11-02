@@ -53,6 +53,16 @@ public class JWTUtils {
                 getAuthorities(jwt));
     }
 
+    public boolean checkJWTToken(String jwt) {
+        return jwt != null
+                && !jwt.isBlank()
+                && hasNoWhitespaces(jwt);
+    }
+
+    private boolean hasNoWhitespaces(String jwt) {
+        return !jwt.contains(" ");
+    }
+
     public String getLogin(DecodedJWT jwt) {
         return jwt.getSubject();
     }

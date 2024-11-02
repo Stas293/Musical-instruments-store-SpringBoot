@@ -27,3 +27,8 @@ application:
 api:
   key:
     self: HISTORY_ORDER_SERVICE_TOKEN
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs

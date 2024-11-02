@@ -64,4 +64,14 @@ public class JWTUtils {
         }
         return "no jwt";
     }
+
+    public boolean checkJWTToken(String jwt) {
+        return jwt != null
+                && !jwt.isBlank()
+                && hasNoWhitespaces(jwt);
+    }
+
+    private boolean hasNoWhitespaces(String jwt) {
+        return !jwt.contains(" ");
+    }
 }

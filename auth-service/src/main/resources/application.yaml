@@ -35,3 +35,8 @@ application:
     header: Authorization
     prefix: Bearer
     expiration: 86400000
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs

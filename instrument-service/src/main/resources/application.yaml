@@ -28,3 +28,8 @@ api:
   key:
     inventory: INVENTORY_SERVICE_TOKEN
     self: INSTRUMENT_SERVICE_TOKEN
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
