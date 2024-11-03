@@ -9,6 +9,10 @@ spring:
   threads:
     virtual:
       enabled: true
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
 server:
   port: 0
 application:
@@ -31,3 +35,36 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        register-health-indicator: true
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        permitted-number-of-calls-in-half-open-state: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 5s
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+  timelimiter:
+    configs:
+      default:
+        cancel-running-future: true
+        timeout-duration: 3s
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 1s

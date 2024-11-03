@@ -38,6 +38,8 @@ public class SecurityConfig {
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers("/eureka/**").permitAll()
+                        .pathMatchers("/fallbackRoute").permitAll()
+                        .pathMatchers("/actuator/**").permitAll()
                         .pathMatchers("/api/users/login", "/api/users/register").permitAll()
                         .pathMatchers(SWAGGER_WHITELIST).permitAll()
                         .anyExchange().authenticated())
@@ -57,6 +59,4 @@ public class SecurityConfig {
             return Mono.empty();
         });
     }
-
-
 }

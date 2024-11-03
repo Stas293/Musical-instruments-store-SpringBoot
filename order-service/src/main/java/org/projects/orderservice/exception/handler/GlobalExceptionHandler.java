@@ -2,6 +2,7 @@ package org.projects.orderservice.exception.handler;
 
 import org.projects.orderservice.exception.OrderCreationException;
 import org.projects.orderservice.exception.ResourceNotFoundException;
+import org.projects.orderservice.exception.ServiceNotAvailableException;
 import org.projects.orderservice.exception.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,5 +25,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(OrderCreationException.class)
     public ResponseEntity<String> handleOrderCreationException(OrderCreationException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ServiceNotAvailableException.class)
+    public ResponseEntity<String> handleServiceNotAvailableException(ServiceNotAvailableException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.SERVICE_UNAVAILABLE);
     }
 }

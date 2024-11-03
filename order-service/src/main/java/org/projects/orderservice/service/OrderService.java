@@ -10,6 +10,7 @@ import org.projects.orderservice.dto.*;
 import org.projects.orderservice.exception.InventoryUpdateException;
 import org.projects.orderservice.exception.OrderCreationException;
 import org.projects.orderservice.exception.ResourceNotFoundException;
+import org.projects.orderservice.exception.ServiceNotAvailableException;
 import org.projects.orderservice.mapper.OrderCreateDtoMapper;
 import org.projects.orderservice.mapper.OrderHistoryCreationDtoMapper;
 import org.projects.orderservice.mapper.OrderResponseDtoMapper;
@@ -116,7 +117,7 @@ public class OrderService {
                     environment.getProperty("application.jwt.secret")), instrumentQuantities);
         } catch (Exception e) {
             log.error("Failed to update inventory");
-            throw new InventoryUpdateException("Failed to update inventory");
+            throw new InventoryUpdateException("Failed to update inventory", e);
         }
         log.info("Inventory updated successfully");
     }
@@ -192,6 +193,10 @@ public class OrderService {
                                     environment.getProperty("application.jwt.secret")),
                     orderHistoryCreationDto);
             log.info("Created history order with id: {}", historyOrderId);
+
+            if (historyOrderId == null) {
+                throw new ServiceNotAvailableException("Failed to create history order");
+            }
 
             orderRepository.deleteById(id);
             return orderResponseDtoMapper.toDto(order.get());
