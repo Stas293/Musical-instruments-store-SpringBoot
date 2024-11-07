@@ -20,8 +20,6 @@ import org.projects.authserver.validator.UserValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +35,6 @@ import java.util.Optional;
 @Slf4j
 @Transactional(readOnly = true)
 public class UserService {
-    private final UserDetailsService userDetailsService;
     private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -48,10 +45,12 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public JwtResponseDTO login(JwtRequestDTO jwtRequestDto) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(jwtRequestDto.login());
+        User user = userRepository.findByLogin(jwtRequestDto.login())
+                .orElseThrow(() -> new ResourceNotFoundException(UserConstants.USER_NOT_FOUND.getMessage()));
         String jwt = jwtUtils.generateToken(
                 jwtRequestDto.login(),
-                userDetails.getAuthorities());
+                user.getEmail(),
+                user.getRoles());
         return new JwtResponseDTO(jwt);
     }
 

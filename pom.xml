@@ -19,6 +19,7 @@
 		<module>history-order-service</module>
 		<module>instrument-service</module>
 		<module>inventory-service</module>
+		<module>notification-service</module>
 	</modules>
 	<packaging>pom</packaging>
 	<name>store</name>

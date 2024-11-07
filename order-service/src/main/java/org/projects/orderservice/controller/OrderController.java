@@ -6,6 +6,7 @@ import org.projects.orderservice.dto.OrderCreationDto;
 import org.projects.orderservice.dto.OrderResponseDto;
 import org.projects.orderservice.dto.StatusResponseDto;
 import org.projects.orderservice.exception.ValidationException;
+import org.projects.orderservice.security.jwt.user.CurrentUserEmail;
 import org.projects.orderservice.service.OrderService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -27,13 +28,14 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     public Long createOrder(Principal principal,
             @RequestBody @Validated OrderCreationDto orderDto,
-                            BindingResult bindingResult) {
+                            BindingResult bindingResult,
+                            @CurrentUserEmail String email) {
         if (bindingResult.hasErrors()) {
             log.info("Validation error: {}", bindingResult.getFieldErrors());
             throw new ValidationException(bindingResult.getFieldErrors().toString());
         }
 
-        return orderService.createOrder(orderDto, principal);
+        return orderService.createOrder(orderDto, principal, email);
     }
 
     @GetMapping("/{id}")

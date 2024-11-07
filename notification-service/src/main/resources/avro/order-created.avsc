@@ -1,0 +1,48 @@
+{
+  "type": "record",
+  "name": "OrderCreatedEvent",
+  "namespace": "org.projects.orderservice.event",
+  "fields": [
+    {
+      "name": "id",
+      "type": "long"
+    },
+    {
+      "name": "user",
+      "type": "string"
+    },
+    {
+      "name": "title",
+      "type": "string"
+    },
+    {
+      "name": "email",
+      "type": "string"
+    },
+    {
+      "name": "instrumentOrders",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "InstrumentOrderResponseDto",
+          "namespace": "org.projects.orderservice.dto",
+          "fields": [
+            {
+              "name": "instrumentId",
+              "type": "string"
+            },
+            {
+              "name": "quantity",
+              "type": "int"
+            },
+            {
+              "name": "price",
+              "type": "double"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

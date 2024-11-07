@@ -8,6 +8,6 @@ public record OrderResponseDto(
         String title,
         String status,
         Boolean closed,
-        List<InstrumentOrderResponseDto> instrumentOrders
+        List<InstrumentOrderDataResponseDto> instrumentOrders
 ) {
 }

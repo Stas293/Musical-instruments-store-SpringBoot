@@ -21,13 +21,14 @@ import java.util.*;
 public class JWTUtils {
     private final JwtConfig jwtConfig;
 
-    public String generateToken(String login, Collection<? extends GrantedAuthority> authorities) {
+    public String generateToken(String login, String email, Collection<? extends GrantedAuthority> authorities) {
         List<String> roles = getRolesList(authorities);
 
         String token = JWT.create()
                 .withJWTId("myJWT")
                 .withSubject(login)
                 .withIssuer("Spring Musical Store")
+                .withClaim("email", email)
                 .withClaim("authorities", roles)
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + jwtConfig.expiration()))

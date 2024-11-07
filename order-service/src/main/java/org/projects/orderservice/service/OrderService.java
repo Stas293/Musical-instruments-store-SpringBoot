@@ -7,14 +7,12 @@ import org.projects.orderservice.client.InstrumentClient;
 import org.projects.orderservice.client.InventoryClient;
 import org.projects.orderservice.constants.DefaultConstants;
 import org.projects.orderservice.dto.*;
+import org.projects.orderservice.event.OrderCreatedEvent;
 import org.projects.orderservice.exception.InventoryUpdateException;
 import org.projects.orderservice.exception.OrderCreationException;
 import org.projects.orderservice.exception.ResourceNotFoundException;
 import org.projects.orderservice.exception.ServiceNotAvailableException;
-import org.projects.orderservice.mapper.OrderCreateDtoMapper;
-import org.projects.orderservice.mapper.OrderHistoryCreationDtoMapper;
-import org.projects.orderservice.mapper.OrderResponseDtoMapper;
-import org.projects.orderservice.mapper.StatusResponseDtoMapper;
+import org.projects.orderservice.mapper.*;
 import org.projects.orderservice.model.InstrumentOrder;
 import org.projects.orderservice.model.NextStatus;
 import org.projects.orderservice.model.Order;
@@ -24,6 +22,7 @@ import org.projects.orderservice.repository.StatusRepository;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -50,9 +49,11 @@ public class OrderService {
     private final Environment environment;
     private final InventoryClient inventoryClient;
     private final HistoryOrderClient historyOrderClient;
+    private final InstrumentOrderResponseDtoMapper instrumentOrderResponseDtoMapper;
+    private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate;
 
     @PreAuthorize("hasAnyRole('USER', 'SELLER', 'ADMIN')")
-    public Long createOrder(OrderCreationDto orderDto, Principal principal) {
+    public Long createOrder(OrderCreationDto orderDto, Principal principal, String email) {
         log.info("Creating order: {}", orderDto);
         return Optional.of(orderCreateDtoMapper.toEntity(orderDto))
                 .map(entity -> {
@@ -62,7 +63,7 @@ public class OrderService {
                 })
                 .map(this::checkAvailability)
                 .map(order -> setOrderFieldsFromInstrumentRepository(principal, order))
-                .map(this::saveOrder)
+                .map(order -> saveOrder(order, email))
                 .map(Order::getId)
                 .orElseThrow(() -> new OrderCreationException("Failed to create order"));
     }
@@ -90,13 +91,27 @@ public class OrderService {
         return order;
     }
 
-    private Order saveOrder(Order order) {
+    private Order saveOrder(Order order, String email) {
         Map<String, Integer> instrumentQuantities = null;
         try {
             instrumentQuantities = order.getInstrumentOrders().stream()
                     .collect(Collectors.toMap(InstrumentOrder::getInstrumentId, InstrumentOrder::getQuantity));
+            Order savedOrder = orderRepository.save(order);
             changeInstrumentQuantity(instrumentQuantities);
-            return orderRepository.save(order);
+            List<InstrumentOrderResponseDto> instrumentOrders = instrumentOrderResponseDtoMapper.toDto(savedOrder.getInstrumentOrders())
+                    .stream()
+                    .map(instrumentOrderResponseDto -> new InstrumentOrderResponseDto(
+                            instrumentOrderResponseDto.instrumentId(),
+                            instrumentOrderResponseDto.quantity(),
+                            instrumentOrderResponseDto.price()
+                    ))
+                    .toList();
+            OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(savedOrder.getId(), savedOrder.getUser(),
+                    savedOrder.getTitle(), email, instrumentOrders);
+            log.info("Sending order created event: {}", orderCreatedEvent);
+            kafkaTemplate.sendDefault(orderCreatedEvent);
+            log.info("Order created successfully");
+            return savedOrder;
         } catch (InventoryUpdateException e) {
             log.error("Failed to update inventory");
             throw e;

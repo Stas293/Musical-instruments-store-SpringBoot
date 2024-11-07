@@ -2,8 +2,6 @@ package org.projects.orderservice.dto;
 
 import lombok.Builder;
 
-import java.math.BigDecimal;
-
 @Builder
 public record InstrumentServiceResponseDto(
         String id,
@@ -12,7 +10,7 @@ public record InstrumentServiceResponseDto(
 
         String title,
 
-        BigDecimal price,
+        Double price,
 
         Integer quantity
 ) {
