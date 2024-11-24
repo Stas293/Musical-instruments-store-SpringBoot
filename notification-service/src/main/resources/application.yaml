@@ -22,3 +22,20 @@ spring:
     password: 2108cf03550056
 server:
   port: 0
+loki:
+  url: http://localhost:3100/loki/api/v1/push
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+  observations:
+    key-values:
+      application: api-gateway
+  tracing:
+    sampling:
+      probability: 1.0

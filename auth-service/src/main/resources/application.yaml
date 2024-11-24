@@ -40,3 +40,20 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs
+loki:
+  url: http://localhost:3100/loki/api/v1/push
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+  observations:
+    key-values:
+      application: api-gateway
+  tracing:
+    sampling:
+      probability: 1.0

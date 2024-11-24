@@ -11,16 +11,6 @@
 	<groupId>com.db</groupId>
 	<artifactId>store</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<modules>
-		<module>api-gateway</module>
-		<module>auth-service</module>
-		<module>discovery-server</module>
-		<module>order-service</module>
-		<module>history-order-service</module>
-		<module>instrument-service</module>
-		<module>inventory-service</module>
-		<module>notification-service</module>
-	</modules>
 	<packaging>pom</packaging>
 	<name>store</name>
 	<description>Musical instruments store SpringBoot</description>
@@ -99,6 +89,15 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>micrometer-registry-prometheus</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.loki4j</groupId>
+			<artifactId>loki-logback-appender</artifactId>
+			<version>1.5.1</version>
 		</dependency>
 	</dependencies>
 <!--		<dependency>-->

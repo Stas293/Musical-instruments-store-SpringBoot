@@ -57,6 +57,16 @@ management:
   endpoint:
     health:
       show-details: always
+  metrics:
+    distribution:
+          percentiles-histogram:
+            http.server.requests: true
+  observations:
+    key-values:
+          application: api-gateway
+  tracing:
+    sampling:
+          probability: 1.0
 resilience4j:
   circuitbreaker:
     configs:
@@ -79,3 +89,5 @@ resilience4j:
       default:
         max-attempts: 3
         wait-duration: 1s
+loki:
+  url: http://localhost:3100/loki/api/v1/push
