@@ -7,6 +7,8 @@ services:
       - 'MONGO_INITDB_ROOT_USERNAME=root'
     ports:
       - '27017:27017'
+    volumes:
+      - 'mongo-data:/data/db'
 
   postgres:
     image: 'postgres:latest'
@@ -17,6 +19,7 @@ services:
       - '5432:5432'
     volumes:
       - 'postgres-data:/var/lib/postgresql/data'
+      - './init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql'
 
   kafka:
     image: bitnami/kafka:latest
@@ -49,7 +52,7 @@ services:
     depends_on:
       - kafka
     ports:
-      - 8081:8080
+      - "8081:8080"
     environment:
       DYNAMIC_CONFIG_ENABLED: 'true'
       # LOGGING_LEVEL_ROOT: 'DEBUG'
@@ -109,6 +112,103 @@ services:
 #    ports:
 #      - "3000:3000"
 
+  discovery-server:
+    container_name: discovery-server
+    ports:
+      - "8761:8761"
+    build:
+      context: ./discovery-server
+      dockerfile: Dockerfile
+    depends_on:
+      - loki
+
+  api-gateway:
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    environment:
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY= TRACE
+    depends_on:
+      - discovery-server
+      - loki
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+
+  auth-service:
+    container_name: auth-service
+    depends_on:
+      - postgres
+      - discovery-server
+      - api-gateway
+      - loki
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+
+  history-order-service:
+    container_name: history-order-service
+    depends_on:
+      - mongodb
+      - loki
+      - discovery-server
+      - api-gateway
+    build:
+      context: ./history-order-service
+      dockerfile: Dockerfile
+
+  instrument-service:
+    container_name: instrument-service
+    depends_on:
+      - mongodb
+      - loki
+      - discovery-server
+      - api-gateway
+      - inventory-service
+    build:
+      context: ./instrument-service
+      dockerfile: Dockerfile
+
+  inventory-service:
+    container_name: inventory-service
+    depends_on:
+      - postgres
+      - loki
+      - discovery-server
+      - api-gateway
+    build:
+      context: ./inventory-service
+      dockerfile: Dockerfile
+
+  notification-service:
+    container_name: notification-service
+    depends_on:
+      - loki
+      - kafka
+      - schema-registry
+      - discovery-server
+      - api-gateway
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+
+  order-service:
+    container_name: order-service
+    depends_on:
+      - loki
+      - postgres
+      - kafka
+      - schema-registry
+      - discovery-server
+      - api-gateway
+      - notification-service
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+
 volumes:
   kafka-data:
   postgres-data:
+  mongo-data:

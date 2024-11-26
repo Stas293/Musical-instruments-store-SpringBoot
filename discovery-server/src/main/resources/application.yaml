@@ -21,7 +21,7 @@ eureka:
 server:
   port: 8761
 loki:
-  url: http://localhost:3100/loki/api/v1/push
+  url: http://loki:3100/loki/api/v1/push
 management:
   endpoints:
     web:

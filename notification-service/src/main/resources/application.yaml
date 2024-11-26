@@ -2,7 +2,7 @@ spring:
   application:
     name: notification-service
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka_b:9094
     consumer:
       group-id: notification-service
       auto-offset-reset: earliest
@@ -11,7 +11,7 @@ spring:
       properties:
         schema:
           registry:
-            url: http://localhost:8082
+            url: http://schema-registry:8081
         specific:
           avro:
             reader: true
@@ -23,7 +23,7 @@ spring:
 server:
   port: 0
 loki:
-  url: http://localhost:3100/loki/api/v1/push
+  url: http://loki:3100/loki/api/v1/push
 management:
   endpoints:
     web:

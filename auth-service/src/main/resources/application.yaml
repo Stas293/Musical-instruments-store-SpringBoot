@@ -1,7 +1,7 @@
 spring:
   datasource:
     name: auth_service
-    url: jdbc:postgresql://localhost:5432/auth_service
+    url: jdbc:postgresql://postgres:5432/auth_service
     username: myuser
     password: secret
   application:
@@ -26,7 +26,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka:passw0rd@localhost:8761/eureka/
+      defaultZone: http://eureka:passw0rd@discovery-server:8761/eureka/
 server:
   port: 0
 application:
@@ -41,7 +41,7 @@ springdoc:
   api-docs:
     path: /v3/api-docs
 loki:
-  url: http://localhost:3100/loki/api/v1/push
+  url: http://loki:3100/loki/api/v1/push
 management:
   endpoints:
     web:
