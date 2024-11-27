@@ -3,31 +3,30 @@ global:
   evaluation_interval: 2s
 
 scrape_configs:
-  - job_name: 'api-gateway'
-    metrics_path: '/actuator/prometheus'
+  # Scrape metrics from Eureka-registered services
+  - job_name: 'eureka'
+    eureka_sd_configs:
+      - server: http://eureka:passw0rd@discovery-server:8761/eureka
+    metrics_path: /actuator/prometheus # Path to metrics endpoint (Spring Boot default)
+
+    relabel_configs:
+      # Combine instance host and port from Eureka into the target address
+      - source_labels: [ __meta_eureka_app_instance_vip_address, __meta_eureka_app_instance_port ]
+        separator: ":"
+        regex: "(.*)"
+        target_label: __address__
+        replacement: "$1" # Combine host and port into a single address
+
+      # Assign a job label for metrics grouping based on service name
+      - source_labels: [ __meta_eureka_app_name ]
+        target_label: job
+
+      # Remove unused labels
+      - action: labeldrop
+        regex: "__meta_eureka.*"
+
+  # Optional: Scrape Prometheus itself
+  - job_name: 'prometheus'
     static_configs:
-      - targets: [ 'host.docker.internal:9000' ] ## only for demo purposes don't use host.docker.internal in production
-  - job_name: 'product-service'
-    metrics_path: '/actuator/prometheus'
-    static_configs:
-      - targets: [ 'host.docker.internal:8080' ] ## only for demo purposes don't use host.docker.internal in production
-        labels:
-          application: 'Product Service'
-  - job_name: 'order-service'
-    metrics_path: '/actuator/prometheus'
-    static_configs:
-      - targets: [ 'host.docker.internal:8081' ] ## only for demo purposes don't use host.docker.internal in production
-        labels:
-          application: 'Order Service'
-  - job_name: 'inventory-service'
-    metrics_path: '/actuator/prometheus'
-    static_configs:
-      - targets: [ 'host.docker.internal:8082' ] ## only for demo purposes don't use host.docker.internal in production
-        labels:
-          application: 'Inventory Service'
-  - job_name: 'notification-service'
-    metrics_path: '/actuator/prometheus'
-    static_configs:
-      - targets: [ 'host.docker.internal:8083' ] ## only for demo purposes don't use host.docker.internal in production
-        labels:
-          application: 'Notification Service'
+      - targets:
+          - 'prometheus:9090' # Adjust if Prometheus is running on a different port or container

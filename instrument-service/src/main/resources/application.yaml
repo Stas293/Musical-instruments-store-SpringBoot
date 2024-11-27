@@ -16,6 +16,8 @@ spring:
     openfeign:
       circuitbreaker:
         enabled: true
+      micrometer:
+        enabled: true
 eureka:
   client:
     service-url:
@@ -50,14 +52,17 @@ management:
       show-details: always
   metrics:
     distribution:
-          percentiles-histogram:
-            http.server.requests: true
+      percentiles-histogram:
+        http.server.requests: true
   observations:
     key-values:
-          application: api-gateway
+      application: api-gateway
   tracing:
     sampling:
-          probability: 1.0
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://tempo:9411
 resilience4j:
   circuitbreaker:
     configs:

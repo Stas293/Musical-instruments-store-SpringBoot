@@ -13,6 +13,8 @@ spring:
     openfeign:
       circuitbreaker:
         enabled: true
+      micrometer:
+        enabled: true
   kafka:
     template:
       default-topic: order-topic
@@ -59,14 +61,17 @@ management:
       show-details: always
   metrics:
     distribution:
-          percentiles-histogram:
-            http.server.requests: true
+      percentiles-histogram:
+        http.server.requests: true
   observations:
     key-values:
-          application: api-gateway
+      application: api-gateway
   tracing:
     sampling:
-          probability: 1.0
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://tempo:9411
 resilience4j:
   circuitbreaker:
     configs:

@@ -50,6 +50,9 @@ management:
   tracing:
     sampling:
       probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://tempo:9411
 resilience4j:
   circuitbreaker:
     configs:

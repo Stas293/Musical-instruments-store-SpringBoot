@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "loki.url",
+      "type": "java.lang.String",
+      "description": "Description for loki.url."
+  }
+] }
