@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: default
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+        - name: auth-service
+          image: stas230/store-auth-service:latest
+          env:
+            - name: _JAVA_OPTIONS
+              value: -Dserver.port=8080 -Deureka.instance.hostname=auth-service.default.svc.cluster.local -Deureka.client.serviceUrl.defaultZone=http://eureka:passw0rd@discovery-server.default.svc.cluster.local:8761/eureka/
+          ports:
+            - containerPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: auth-service
+  name: auth-service
+spec:
+  ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: auth-service

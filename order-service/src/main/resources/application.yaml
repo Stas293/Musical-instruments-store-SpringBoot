@@ -18,7 +18,7 @@ spring:
   kafka:
     template:
       default-topic: order-topic
-    bootstrap-servers: kafka_b:9094
+    bootstrap-servers: kafka:9094
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer

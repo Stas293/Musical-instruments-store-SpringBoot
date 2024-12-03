@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: default
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus
+          ports:
+            - containerPort: 9090
+          args:
+            - --enable-feature=exemplar-storage
+            - --config.file=/etc/prometheus/prometheus.yml
+          volumeMounts:
+            - name: prometheus-config
+              mountPath: /etc/prometheus
+      volumes:
+        - name: prometheus-config
+          configMap:
+            name: prometheus-config
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: default
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 2s
+      evaluation_interval: 2s
+    
+    scrape_configs:
+      # Scrape metrics from Eureka-registered services
+      - job_name: 'eureka'
+        eureka_sd_configs:
+          - server: http://eureka:passw0rd@discovery-server:8761/eureka
+        metrics_path: /actuator/prometheus # Path to metrics endpoint (Spring Boot default)
+    
+        relabel_configs:
+          # Combine instance host and port from Eureka into the target address
+          - source_labels: [ __meta_eureka_app_instance_vip_address, __meta_eureka_app_instance_port ]
+            separator: ":"
+            regex: "(.*)"
+            target_label: __address__
+            replacement: "$1" # Combine host and port into a single address
+    
+          # Assign a job label for metrics grouping based on service name
+          - source_labels: [ __meta_eureka_app_name ]
+            target_label: job
+    
+          # Remove unused labels
+          - action: labeldrop
+            regex: "__meta_eureka.*"
+    
+      # Optional: Scrape Prometheus itself
+      - job_name: 'prometheus'
+        static_configs:
+          - targets:
+              - 'prometheus:9090' # Adjust if Prometheus is running on a different port or container
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+spec:
+  selector:
+    app: prometheus
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090

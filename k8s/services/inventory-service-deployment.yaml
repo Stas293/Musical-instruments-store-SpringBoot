@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: default
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-service
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-service
+  template:
+    metadata:
+      labels:
+        app: inventory-service
+    spec:
+      containers:
+        - name: inventory-service
+          image: stas230/store-inventory-service
+          env:
+            - name: _JAVA_OPTIONS
+              value: -Dserver.port=8080 -Deureka.instance.hostname=inventory-service.default.svc.cluster.local -Deureka.client.serviceUrl.defaultZone=http://eureka:passw0rd@discovery-server.default.svc.cluster.local:8761/eureka/
+          ports:
+            - containerPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: inventory-service
+  name: inventory-service
+spec:
+  ports:
+    - name: "8080"
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: inventory-service

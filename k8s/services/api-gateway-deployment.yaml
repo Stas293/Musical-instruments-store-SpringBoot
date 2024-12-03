@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: default
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: stas230/store-api-gateway:latest
+          ports:
+            - containerPort: 8080
+            - containerPort: 8181
+          env:
+            - name: _JAVA_OPTIONS
+              value: -Dserver.port=8080 -Deureka.instance.hostname=api-gateway.default.svc.cluster.local -Deureka.client.serviceUrl.defaultZone=http://eureka:passw0rd@discovery-server.default.svc.cluster.local:8761/eureka/
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: api-gateway
+  name: api-gateway
+spec:
+  type: LoadBalancer
+  ports:
+    - name: "8181"
+      port: 8181
+      targetPort: 8080
+  selector:
+    app: api-gateway
