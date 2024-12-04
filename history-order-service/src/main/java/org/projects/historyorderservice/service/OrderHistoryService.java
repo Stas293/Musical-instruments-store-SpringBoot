@@ -54,6 +54,14 @@ public class OrderHistoryService {
     @PreAuthorize("hasAnyRole('SELLER', 'SERVICE')")
     public String createOrderHistoryForUser(OrderHistoryCreationDto orderHistoryResponseDto) {
         return Optional.of(orderHistoryCreationMapper.toEntity(orderHistoryResponseDto))
+                .map(order -> {
+                    order.setTotalSum(orderHistoryResponseDto.instrumentOrders().stream()
+                            .map(instrumentOrder -> instrumentOrder.price() * instrumentOrder.quantity())
+                            .reduce(Double::sum)
+                            .orElseThrow());
+                    order.setStatus(orderHistoryResponseDto.status());
+                    return order;
+                })
                 .map(orderHistoryRepository::save)
                 .map(OrderHistory::getId)
                 .orElseThrow(() -> new OrderHistoryCreationException("Failed to create order history"));
