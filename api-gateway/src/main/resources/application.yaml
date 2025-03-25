@@ -3,6 +3,37 @@ spring:
     name: api-gateway
   main:
     web-application-type: reactive
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "*"
+            allowedMethods:
+              - GET
+              - PATCH
+              - PUT
+              - POST
+              - DELETE
+              - PATH
+              - OPTIONS
+            allowedHeaders:
+              - origin
+              - accept
+              - x-requested-with
+              - content-type
+              - access-control-request-method
+              - access-control-request-headers
+              - authorization
+              - tenant
+              - x-request-id
+              - platform-subdomain-name
+            exposedHeaders:
+              - content-type
+              - content-disposition
+            #            allowCredentials: true
+            maxAge: 3600
 
 application:
   jwt:

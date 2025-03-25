@@ -203,7 +203,6 @@ services:
       - schema-registry
       - discovery-server
       - api-gateway
-      - notification-service
     build:
       context: ./order-service
       dockerfile: Dockerfile

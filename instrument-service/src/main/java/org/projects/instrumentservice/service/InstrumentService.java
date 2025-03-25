@@ -71,7 +71,6 @@ public class InstrumentService {
                 instrument.getQuantity());
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'SELLER', 'ADMIN')")
     public Page<InstrumentResponseDto> getInstrumentsPage(int page, int size) {
         return instrumentRepository.findAll(PageRequest.of(page, size))
                 .map(instrumentResponseMapper::toDto);

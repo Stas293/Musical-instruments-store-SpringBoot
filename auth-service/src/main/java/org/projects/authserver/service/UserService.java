@@ -47,6 +47,9 @@ public class UserService {
     public JwtResponseDTO login(JwtRequestDTO jwtRequestDto) {
         User user = userRepository.findByLogin(jwtRequestDto.login())
                 .orElseThrow(() -> new ResourceNotFoundException(UserConstants.USER_NOT_FOUND.getMessage()));
+        if (!passwordEncoder.matches(jwtRequestDto.password(), user.getPassword())) {
+            throw new ResourceNotFoundException(UserConstants.USER_NOT_FOUND.getMessage());
+        }
         String jwt = jwtUtils.generateToken(
                 jwtRequestDto.login(),
                 user.getEmail(),

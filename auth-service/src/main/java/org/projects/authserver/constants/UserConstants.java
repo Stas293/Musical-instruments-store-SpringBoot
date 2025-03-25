@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum UserConstants {
     DEFAULT_USER_ROLE("ROLE_USER"),
-    USER_NOT_FOUND("user.not.found"),
+    USER_NOT_FOUND("The user with the specified data was not found"),
     LOGIN_ALREADY_EXISTS("login.already.exists"),
     EMAIL_ALREADY_EXISTS("email.already.exists"),
     PHONE_ALREADY_EXISTS("phone.already.exists"),

@@ -1,0 +1,56 @@
+<!--<nav class="navbar navbar-expand-lg navbar-dark bg-dark">-->
+<!--  <div class="container-fluid">-->
+<!--    <a class="navbar-brand" href="#">🎵 Musical Instruments Store</a>-->
+<!--    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">-->
+<!--      <span class="navbar-toggler-icon"></span>-->
+<!--    </button>-->
+<!--    <div class="collapse navbar-collapse" id="navbarNav">-->
+<!--      <ul class="navbar-nav ms-auto">-->
+<!--        <li class="nav-item"><a class="nav-link" routerLink="/">Home</a></li>-->
+<!--        <li class="nav-item"><a class="nav-link" routerLink="/about">About Us</a></li>-->
+<!--        <li class="nav-item"><a class="nav-link" routerLink="/contact">Contact</a></li>-->
+<!--        <li *ifAuthenticated="false" class="nav-item"><a class="nav-link" routerLink="/login">Login</a></li>-->
+<!--        <li *ifAuthenticated="false" class="nav-item"><a class="nav-link" routerLink="/signup">Register</a></li>-->
+<!--        <li *ifAuthenticated="true" class="nav-item"><a class="nav-link" (click)="logout()">Logout</a></li>-->
+<!--      </ul>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</nav>-->
+
+
+<nav class="navbar navbar-expand-md bg-dark sticky-top border-bottom" data-bs-theme="dark">
+  <div class="container">
+    <a class="navbar-brand d-md-none" href="#">
+      🎵 Musical Instruments Store
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas"
+            aria-controls="offcanvas" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasLabel">Aperture</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav flex-grow-1 justify-content-between">
+          <li class="nav-item"><a class="nav-link" href="#">
+            🎵 Musical Instruments Store
+          </a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/">Home</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/about">About Us</a></li>
+          <li class="nav-item"><a class="nav-link" routerLink="/contact">Contact</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">
+            <svg class="bi" width="24" height="24">
+              <use xlink:href="#cart"/>
+            </svg>
+          </a></li>
+
+          <li *ifAuthenticated="false" class="nav-item"><a class="nav-link" routerLink="/login">Login</a></li>
+          <li *ifAuthenticated="false" class="nav-item"><a class="nav-link" routerLink="/signup">Register</a></li>
+          <li *ifAuthenticated="true" class="nav-item"><a class="nav-link" (click)="logout()">Logout</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>

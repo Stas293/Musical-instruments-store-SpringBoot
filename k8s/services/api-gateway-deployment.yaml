@@ -27,6 +27,8 @@ spec:
             - containerPort: 8080
             - containerPort: 8181
           env:
+            - name: LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY
+              value: ' TRACE'
             - name: _JAVA_OPTIONS
               value: -Dserver.port=8080 -Deureka.instance.hostname=api-gateway.default.svc.cluster.local -Deureka.client.serviceUrl.defaultZone=http://eureka:passw0rd@discovery-server.default.svc.cluster.local:8761/eureka/
 

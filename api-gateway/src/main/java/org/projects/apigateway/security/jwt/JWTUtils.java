@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,15 +19,18 @@ import java.util.*;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JWTUtils {
     private final JwtConfig jwtConfig;
 
     public DecodedJWT validateToken(String token) {
+        log.info("Validating token: {}", token);
         JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(jwtConfig.secret()))
                 .withJWTId("myJWT")
                 .withIssuer("Spring Musical Store")
                 .build();
 
+        log.info("JWT Verifier: {}", jwtVerifier);
         return jwtVerifier.verify(token);
     }
 
@@ -37,6 +41,7 @@ public class JWTUtils {
     private Collection<? extends GrantedAuthority> getAuthorities(DecodedJWT jwt) {
         Set<SimpleGrantedAuthority> grantedAuthoritySet = new HashSet<>();
         List<String> roles = jwt.getClaim("authorities").asList(String.class);
+        log.info("Roles: {}", roles);
         roles.forEach(s -> grantedAuthoritySet.add(new SimpleGrantedAuthority(s)));
         return grantedAuthoritySet;
     }
@@ -47,6 +52,7 @@ public class JWTUtils {
                 "",
                 getAuthorities(jwt)
         );
+        log.info("User Details: {}", userDetails);
         return new UsernamePasswordAuthenticationToken(
                 userDetails,
                 userDetails.getPassword(),
@@ -55,6 +61,7 @@ public class JWTUtils {
 
     public String getJwt(ServerHttpRequest request) {
         String header = request.getHeaders().getFirst(jwtConfig.header());
+        log.info("JWT Header: {}", header);
         if (header != null && header.startsWith(jwtConfig.prefix())) {
             return header.substring(7);
         }
